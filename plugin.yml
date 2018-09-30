@@ -1,0 +1,12 @@
+name: MainFlatAssist
+main: amata1219.main.flat.assist.MainFlatAssist
+version: 1.0.0
+author: amata1219(Twitter@amata1219)
+softdepend: [WorldGuard]
+
+commands:
+  wgregion:
+    description: debug command.
+    usage: /<command>
+    permission: main.flat.assist.debug
+    permission-message: You do not have permssion.
