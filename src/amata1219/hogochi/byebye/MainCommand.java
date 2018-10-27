@@ -1,22 +1,15 @@
-package amata1219.main.flat.assist;
+package amata1219.hogochi.byebye;
 
-import java.util.List;
+public class MainCommand {
 
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabExecutor;
-import org.bukkit.entity.Player;
+	//This is all a sample
 
-import com.sk89q.worldguard.protection.regions.ProtectedRegion;
-
-public class WGRegionCommand implements TabExecutor{
-
-	private MainFlatAssist plugin;
+	/*private HogochiByebye plugin;
 
 	private ProtectedRegion select;
 	private boolean debug = false;
 
-	public WGRegionCommand(MainFlatAssist plugin){
+	public WGRegionCommand(HogochiByebye plugin){
 		this.plugin = plugin;
 		debug = true;
 	}
@@ -30,7 +23,7 @@ public class WGRegionCommand implements TabExecutor{
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 		if(!(sender instanceof Player))return true;
 		Player p = (Player) sender;
-		RegionAssist r = plugin.getRegionAssist();
+		ByebyeHelper r = plugin.getRegionAssist();
 		if(args.length == 0){
 
 		}else if(args[0].equals("exist")){
@@ -92,6 +85,6 @@ public class WGRegionCommand implements TabExecutor{
 			return  true;
 		}
 		return false;
-	}
+	}*/
 
 }
