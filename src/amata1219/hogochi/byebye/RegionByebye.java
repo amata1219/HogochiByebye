@@ -203,13 +203,23 @@ public class RegionByebye implements RegionByebyeAPI {
 
 	@Override
 	public boolean isExistRegionByLocation(Location location){
-		return manager.getApplicableRegions(location).size() > 0;
+		for(ProtectedRegion region : manager.getApplicableRegions(location)){
+			if(region.getId().startsWith("mainflatroad"))
+				continue;
+			else
+				return true;
+		}
+		return false;
 	}
 
 	@Override
 	public ProtectedRegion getProtectedRegion(Location location){
-		for(ProtectedRegion region : manager.getApplicableRegions(location))
-			return region;
+		for(ProtectedRegion region : manager.getApplicableRegions(location)){
+			if(region.getId().startsWith("mainflatroad"))
+				continue;
+			else
+				return region;
+		}
 
 		return null;
 	}
