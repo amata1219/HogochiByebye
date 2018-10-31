@@ -1,6 +1,6 @@
 package amata1219.hogochi.byebye;
 
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.bukkit.Location;
@@ -20,7 +20,7 @@ import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
 public class RegionByebye implements RegionByebyeAPI {
 
-	private List<String> regionList;
+	private HashMap<String, Long> sales;
 
 	private World mainflat;
 	private RegionManager manager;
@@ -35,7 +35,14 @@ public class RegionByebye implements RegionByebyeAPI {
 	public void load(){
 		HogochiByebye plugin = HogochiByebye.getPlugin();
 
-		regionList = plugin.getConfig().getStringList("RegionList");
+		for(String key : plugin.getConfig().getKeys(false)){
+			if(!key.equals("Regions"))
+				continue;
+
+			for(String id : plugin.getConfig().getKeys(false)){
+				sales.put(id, plugin.getConfig().getLong(id));
+			}
+		}
 
 		mainflat = plugin.getServer().getWorld("mainflat");
 
@@ -45,7 +52,8 @@ public class RegionByebye implements RegionByebyeAPI {
 	public void unload(){
 		HogochiByebye plugin = HogochiByebye.getPlugin();
 
-		plugin.getConfig().set("RegionList", regionList);
+		plugin.getConfig().createSection("Regions", sales);
+
 		plugin.saveConfig();
 		plugin.reloadConfig();
 	}
@@ -60,12 +68,12 @@ public class RegionByebye implements RegionByebyeAPI {
 		region.getMembers().removeAll();
 		region.getOwners().addPlayer(player.getUniqueId());
 
-		regionList.remove(region.getId());
+		sales.remove(region.getId());
 	}
 
 	@Override
-	public void sell(ProtectedRegion region){
-		regionList.add(region.getId());
+	public void sell(ProtectedRegion region, long price){
+		sales.put(region.getId(), price);
 	}
 
 	@Override
@@ -218,12 +226,12 @@ public class RegionByebye implements RegionByebyeAPI {
 
 	@Override
 	public boolean isBuyable(ProtectedRegion region){
-		return regionList.contains(region.getId());
+		return sales.containsKey(region.getId());
 	}
 
 	@Override
 	public boolean isSellable(ProtectedRegion region){
-		return !regionList.contains(region.getId());
+		return !sales.containsKey(region.getId());
 	}
 
 	//is X x Z
@@ -257,6 +265,14 @@ public class RegionByebye implements RegionByebyeAPI {
 	public int getDepth(ProtectedRegion region){
 		BlockVector s = region.getMinimumPoint(), l = region.getMaximumPoint();
 		return abs(l.getBlockZ()) - abs(s.getBlockZ());
+	}
+
+	@Override
+	public long getPrice(ProtectedRegion region){
+		if(!isBuyable(region))
+			return -1;
+
+		return sales.get(region.getId());
 	}
 
 	@Override
@@ -338,8 +354,6 @@ public class RegionByebye implements RegionByebyeAPI {
 		region.getOwners().addPlayer(player.getUniqueId());
 		getRegionManager().addRegion(region);
 		visible(player, region);
-		Location rloc = toLoc(region.getMinimumPoint(), true);
-		System.out.println(rloc.getBlockX() + ", " + rloc.getBlockY() + ", " + rloc.getBlockZ());
 		return region;
 	}
 

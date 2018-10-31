@@ -9,7 +9,7 @@ public interface RegionByebyeAPI {
 
 	void buy(Player player, ProtectedRegion region);
 
-	void sell(ProtectedRegion region);
+	void sell(ProtectedRegion region, long price);
 
 	void combineLargeRegions(Player player, ProtectedRegion region, ProtectedRegion target);
 
@@ -42,6 +42,8 @@ public interface RegionByebyeAPI {
 	int getWidth(ProtectedRegion region);
 
 	int getDepth(ProtectedRegion region);
+
+	long getPrice(ProtectedRegion region);
 
 	int[] getMainAddress(Location location);
 

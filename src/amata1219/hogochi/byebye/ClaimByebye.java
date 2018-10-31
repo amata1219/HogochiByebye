@@ -1,6 +1,6 @@
 package amata1219.hogochi.byebye;
 
-import java.util.List;
+import java.util.HashMap;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -10,7 +10,7 @@ import me.ryanhamshire.GriefPrevention.claims.Claim;
 
 public class ClaimByebye implements ClaimByebyeAPI {
 
-	private List<String> claimList;
+	private HashMap<String, Long> sales;
 
 	private ClaimManager manager;
 
@@ -21,7 +21,14 @@ public class ClaimByebye implements ClaimByebyeAPI {
 	public void load(){
 		HogochiByebye plugin = HogochiByebye.getPlugin();
 
-		claimList = plugin.getConfig().getStringList("ClaimList");
+		for(String key : plugin.getConfig().getKeys(false)){
+			if(!key.equals("Claims"))
+				continue;
+
+			for(String id : plugin.getConfig().getKeys(false)){
+				sales.put(id, plugin.getConfig().getLong(id));
+			}
+		}
 
 		manager = plugin.getGriefPreventionX().getGriefPreventionXApi().getClaimManager();
 	}
@@ -29,7 +36,8 @@ public class ClaimByebye implements ClaimByebyeAPI {
 	public void unload(){
 		HogochiByebye plugin = HogochiByebye.getPlugin();
 
-		plugin.getConfig().set("ClaimList", claimList);
+		plugin.getConfig().createSection("Claims", sales);
+
 		plugin.saveConfig();
 		plugin.reloadConfig();
 	}
@@ -41,8 +49,8 @@ public class ClaimByebye implements ClaimByebyeAPI {
 	}
 
 	@Override
-	public void sell(Claim claim) {
-		claimList.add(String.valueOf(claim.getID()));
+	public void sell(Claim claim, long price) {
+		sales.put(String.valueOf(claim.getID()), price);
 	}
 
 	@Override
@@ -63,12 +71,20 @@ public class ClaimByebye implements ClaimByebyeAPI {
 
 	@Override
 	public boolean isBuyable(Claim claim) {
-		return claimList.contains(String.valueOf(claim.getID()));
+		return sales.containsKey(String.valueOf(claim.getID()));
 	}
 
 	@Override
 	public boolean isSellable(Claim claim) {
-		return !claimList.contains(String.valueOf(claim.getID()));
+		return !sales.containsKey(String.valueOf(claim.getID()));
+	}
+
+	@Override
+	public long getPrice(Claim claim){
+		if(!isBuyable(claim))
+			return -1;
+
+		return sales.get(String.valueOf(claim.getID()));
 	}
 
 }

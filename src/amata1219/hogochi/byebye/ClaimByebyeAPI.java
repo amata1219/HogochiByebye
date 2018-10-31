@@ -9,7 +9,7 @@ public interface ClaimByebyeAPI {
 
 	void buy(Player player, Claim claim);
 
-	void sell(Claim claim);
+	void sell(Claim claim, long price);
 
 	boolean isExistClaimByLocation(Location location);
 
@@ -20,5 +20,7 @@ public interface ClaimByebyeAPI {
 	boolean isBuyable(Claim claim);
 
 	boolean isSellable(Claim claim);
+
+	long getPrice(Claim claim);
 
 }
