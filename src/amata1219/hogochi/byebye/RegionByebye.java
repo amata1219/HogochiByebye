@@ -6,9 +6,6 @@ import java.util.Map;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
-import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 
 import com.sk89q.worldedit.BlockVector;
@@ -23,7 +20,7 @@ import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
 public class RegionByebye implements RegionByebyeAPI {
 
-	private List<String> regionList, signs;
+	private List<String> regionList;
 
 	private World mainflat;
 	private RegionManager manager;
@@ -40,38 +37,21 @@ public class RegionByebye implements RegionByebyeAPI {
 
 		regionList = plugin.getConfig().getStringList("RegionList");
 
-		signs = plugin.getConfig().getStringList("RegionSigns");
-		signs.forEach(sign -> {
-			if(!isExistRBSign(Util.toLocation(sign)))
-				signs.remove(sign);
-		});
+		mainflat = plugin.getServer().getWorld("mainflat");
 
-		mainflat = HogochiByebye.getPlugin().getServer().getWorld("world");
-
-		manager = HogochiByebye.getPlugin().getWorldGuardPlugin().getRegionManager(mainflat);
+		manager = plugin.getWorldGuardPlugin().getRegionManager(mainflat);
 	}
 
 	public void unload(){
 		HogochiByebye plugin = HogochiByebye.getPlugin();
 
 		plugin.getConfig().set("RegionList", regionList);
-		plugin.getConfig().set("RegionSigns", signs);
 		plugin.saveConfig();
 		plugin.reloadConfig();
 	}
 
 	public RegionManager getRegionManager(){
 		return manager;
-	}
-
-	@Override
-	public boolean isRBEnable(World world){
-		return this.mainflat.equals(world);
-	}
-
-	@Override
-	public boolean isRBEnable(String worldName){
-		return this.mainflat.getName().equals(worldName);
 	}
 
 	@Override
@@ -214,8 +194,16 @@ public class RegionByebye implements RegionByebyeAPI {
 	}
 
 	@Override
-	public boolean isExistRegionByLocation(Location loc){
-		return manager.getApplicableRegions(loc).size() > 0;
+	public boolean isExistRegionByLocation(Location location){
+		return manager.getApplicableRegions(location).size() > 0;
+	}
+
+	@Override
+	public ProtectedRegion getProtectedRegion(Location location){
+		for(ProtectedRegion region : manager.getApplicableRegions(location))
+			return region;
+
+		return null;
 	}
 
 	@Override
@@ -272,55 +260,13 @@ public class RegionByebye implements RegionByebyeAPI {
 	}
 
 	@Override
-	public boolean isExistRBSign(Location location){
-		return signs.contains(Util.toString(location));
-	}
-
-	@Override
-	public boolean isRBSign(Sign sign){
-		String[] lines = sign.getLines();
-
-		if(lines.length < 2)
-			return false;
-
-		return lines[0].equals("[SellRegion]") && Util.isNumber(lines[1]);
-	}
-
-	@Override
-	public long getPrice(Sign sign){
-		return Long.valueOf(sign.getLines()[1]);
-	}
-
-	@Override
-	public boolean canPlaceRBSign(Block block, BlockFace face){
-		Block slide = block.getLocation().add(face.getModX(), face.getModY(), face.getModZ()).getBlock();
-		return slide != null && slide.getType() == Material.AIR;
-	}
-
-	@Override
-	public void setRBSign(Block block, BlockFace face, long price){
-		Block slide = block.getLocation().add(face.getModX(), face.getModY(), face.getModZ()).getBlock();
-		if(face == BlockFace.UP || face == BlockFace.DOWN)
-			slide.setType(Material.WALL_SIGN);
-		else
-			slide.setType(Material.SIGN_POST);
-
-		Sign sign = (Sign) slide;
-		sign.setLine(0, "[SellRegion]");
-		sign.setLine(1, String.valueOf(price));
-
-		org.bukkit.material.Sign msign = new org.bukkit.material.Sign(slide.getType());
-		msign.setFacingDirection(face);
-		sign.setData(msign);
-
-		sign.update();
-
-		signs.add(Util.toString(slide.getLocation()));
-	}
-
-	@Override
-	public void removeRBSign(Block block){
-		signs.remove(Util.toString(block.getLocation()));
+	public int getSubAddress(Location location){
+		int x = location.getBlockX(), z = location.getBlockZ();
+		int[] mainCorners = getMainAddress(x, z);
+		int n = regionWidth / 2 - 1;
+		int cx = mainCorners[0] + n;
+		int cz = mainCorners[1] + n;
+		return getSubAddress(x, z, cx, cz);
 	}
 
 	/*public void create(Player player, Location loc){
@@ -423,6 +369,7 @@ public class RegionByebye implements RegionByebyeAPI {
 		getRegionManager().removeRegion(region.getId());
 	}
 
+	@Override
 	public int[] getMainAddress(Location loc){
 		return getMainAddress(loc.getBlockX(), loc.getBlockZ());
 	}
@@ -438,6 +385,7 @@ public class RegionByebye implements RegionByebyeAPI {
 		int m = roadWidth / 2;
 		return new int[]{(roadWidth + regionWidth) * x + m, (roadWidth + regionWidth) * z + m, (roadWidth + regionWidth) * x + m + regionWidth - 1, (roadWidth + regionWidth) * z + m + regionWidth - 1};
 	}
+
 	public int getSubAddress(int x, int z, int cx, int cz){
 		int i = 1;
 		if(x > cx)i += 1;

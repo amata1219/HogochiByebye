@@ -1,19 +1,11 @@
 package amata1219.hogochi.byebye;
 
 import org.bukkit.Location;
-import org.bukkit.World;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
-import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
-interface RegionByebyeAPI {
-
-	boolean isRBEnable(World world);
-
-	boolean isRBEnable(String worldName);
+public interface RegionByebyeAPI {
 
 	void buy(Player player, ProtectedRegion region);
 
@@ -28,6 +20,8 @@ interface RegionByebyeAPI {
 	void splitSmallRegion(Player player, ProtectedRegion region);
 
 	boolean isExistRegionByLocation(Location location);
+
+	ProtectedRegion getProtectedRegion(Location location);
 
 	boolean isOwner(Player player, ProtectedRegion region);
 
@@ -49,16 +43,8 @@ interface RegionByebyeAPI {
 
 	int getDepth(ProtectedRegion region);
 
-	boolean isExistRBSign(Location location);
+	int[] getMainAddress(Location location);
 
-	boolean isRBSign(Sign sign);
-
-	long getPrice(Sign sign);
-
-	boolean canPlaceRBSign(Block block, BlockFace face);
-
-	void setRBSign(Block block, BlockFace face, long price);
-
-	void removeRBSign(Block block);
+	int getSubAddress(Location location);
 
 }
