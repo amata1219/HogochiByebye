@@ -11,6 +11,8 @@ public interface RegionByebyeAPI {
 
 	void sell(ProtectedRegion region, long price);
 
+	void withdrawSale(ProtectedRegion region);
+
 	ProtectedRegion combineLargeRegions(Player player, ProtectedRegion region, ProtectedRegion target);
 
 	ProtectedRegion combineSmallRegions(Player player, ProtectedRegion region, ProtectedRegion target);

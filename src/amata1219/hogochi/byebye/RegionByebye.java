@@ -77,6 +77,11 @@ public class RegionByebye implements RegionByebyeAPI {
 	}
 
 	@Override
+	public void withdrawSale(ProtectedRegion region){
+		sales.remove(region.getId());
+	}
+
+	@Override
 	public ProtectedRegion combineLargeRegions(Player player, ProtectedRegion region, ProtectedRegion target){
 		Location loc = toLoc(region.getMinimumPoint(), true);
 		boolean[] minus = isMinus(loc);
