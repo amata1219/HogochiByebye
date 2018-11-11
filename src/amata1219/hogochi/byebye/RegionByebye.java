@@ -77,7 +77,7 @@ public class RegionByebye implements RegionByebyeAPI {
 	}
 
 	@Override
-	public void combineLargeRegions(Player player, ProtectedRegion region, ProtectedRegion target){
+	public ProtectedRegion combineLargeRegions(Player player, ProtectedRegion region, ProtectedRegion target){
 		Location loc = toLoc(region.getMinimumPoint(), true);
 		boolean[] minus = isMinus(loc);
 		Location location = correct(loc, minus);
@@ -89,10 +89,12 @@ public class RegionByebye implements RegionByebyeAPI {
 		newRegion.setOwners(owners);
 		newRegion.setMembers(members);
 		newRegion.setFlags(flags);
+
+		return newRegion;
 	}
 
 	@Override
-	public void combineSmallRegions(Player player, ProtectedRegion region, ProtectedRegion target){
+	public ProtectedRegion combineSmallRegions(Player player, ProtectedRegion region, ProtectedRegion target){
 		int n = regionWidth / 2 - 1;
 		Location rl = toLoc(region.getMinimumPoint(), true);
 		boolean[] rminus = isMinus(rl);
@@ -137,10 +139,12 @@ public class RegionByebye implements RegionByebyeAPI {
 			newRegion.setMembers(members);
 			newRegion.setFlags(flags);
 		}
+
+		return newRegion;
 	}
 
 	@Override
-	public void splitLargeRegion(Player player, ProtectedRegion region, boolean isX){
+	public ProtectedRegion[] splitLargeRegion(Player player, ProtectedRegion region, boolean isX){
 		Location minl = toLoc(region.getMinimumPoint(), true);
 		boolean[] minMinus = isMinus(minl);
 		Location minLoc = correct(minl, minMinus);
@@ -167,10 +171,12 @@ public class RegionByebye implements RegionByebyeAPI {
 		newRegion2.setOwners(owners);
 		newRegion2.setMembers(members);
 		newRegion2.setFlags(flags);
+
+		return new ProtectedRegion[]{newRegion1, newRegion2};
 	}
 
 	@Override
-	public void splitSmallRegion(Player player, ProtectedRegion region){
+	public ProtectedRegion[] splitSmallRegion(Player player, ProtectedRegion region){
 		//boolean isX = abs(abs(region.getMaximumPoint().getBlockX()) - abs(region.getMinimumPoint().getBlockX())) == claimWidth / 2 - 1;
 		boolean isX = is25x50(region);
 		Location minl = toLoc(region.getMinimumPoint(), true);
@@ -199,6 +205,8 @@ public class RegionByebye implements RegionByebyeAPI {
 		newRegion2.setOwners(owners);
 		newRegion2.setMembers(members);
 		newRegion2.setFlags(flags);
+
+		return new ProtectedRegion[]{newRegion1, newRegion2};
 	}
 
 	@Override
@@ -264,6 +272,7 @@ public class RegionByebye implements RegionByebyeAPI {
 	public boolean is25x25(ProtectedRegion region){
 		return getWidth(region) == 25 && getDepth(region) == 25;
 	}
+
 	//X
 	public int getWidth(ProtectedRegion region){
 		BlockVector s = region.getMinimumPoint(), l = region.getMaximumPoint();
@@ -286,8 +295,17 @@ public class RegionByebye implements RegionByebyeAPI {
 	}
 
 	@Override
+	public boolean isAdminRegion(ProtectedRegion region){
+		return region.getId().startsWith("admin");
+	}
+
+	@Override
 	public int getSubAddress(Location location){
-		int x = location.getBlockX(), z = location.getBlockZ();
+		return getSubAddress(location.getBlockX(), location.getBlockZ());
+	}
+
+	@Override
+	public int getSubAddress(int x, int z){
 		int[] mainCorners = getMainAddress(x, z);
 		int n = regionWidth / 2 - 1;
 		int cx = mainCorners[0] + n;
@@ -398,6 +416,7 @@ public class RegionByebye implements RegionByebyeAPI {
 		return getMainAddress(loc.getBlockX(), loc.getBlockZ());
 	}
 
+	@Override
 	public int[] getMainAddress(int x, int z){
 		int m = roadWidth / 2 + 1;
 		int n = roadWidth + regionWidth;

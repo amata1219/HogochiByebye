@@ -11,13 +11,13 @@ public interface RegionByebyeAPI {
 
 	void sell(ProtectedRegion region, long price);
 
-	void combineLargeRegions(Player player, ProtectedRegion region, ProtectedRegion target);
+	ProtectedRegion combineLargeRegions(Player player, ProtectedRegion region, ProtectedRegion target);
 
-	void combineSmallRegions(Player player, ProtectedRegion region, ProtectedRegion target);
+	ProtectedRegion combineSmallRegions(Player player, ProtectedRegion region, ProtectedRegion target);
 
-	void splitLargeRegion(Player player, ProtectedRegion region, boolean isAlongX);
+	ProtectedRegion[] splitLargeRegion(Player player, ProtectedRegion region, boolean isAlongX);
 
-	void splitSmallRegion(Player player, ProtectedRegion region);
+	ProtectedRegion[] splitSmallRegion(Player player, ProtectedRegion region);
 
 	boolean isExistRegionByLocation(Location location);
 
@@ -45,8 +45,14 @@ public interface RegionByebyeAPI {
 
 	long getPrice(ProtectedRegion region);
 
+	boolean isAdminRegion(ProtectedRegion region);
+
 	int[] getMainAddress(Location location);
 
+	int[] getMainAddress(int x, int z);
+
 	int getSubAddress(Location location);
+
+	int getSubAddress(int x, int z);
 
 }
