@@ -54,6 +54,11 @@ public class ClaimByebye implements ClaimByebyeAPI {
 	}
 
 	@Override
+	public void withdrawSale(Claim claim){
+		sales.remove(String.valueOf(claim.getID()));
+	}
+
+	@Override
 	public boolean isExistClaimByLocation(Location location) {
 		return manager.getClaimAt(location) != null;
 	}

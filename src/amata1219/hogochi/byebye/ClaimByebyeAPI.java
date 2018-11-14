@@ -11,6 +11,8 @@ public interface ClaimByebyeAPI {
 
 	void sell(Claim claim, long price);
 
+	void withdrawSale(Claim claim);
+
 	boolean isExistClaimByLocation(Location location);
 
 	Claim getClaim(Location location);
