@@ -10,7 +10,7 @@ import me.ryanhamshire.GriefPrevention.claims.Claim;
 
 public class ClaimByebye implements ClaimByebyeAPI {
 
-	private HashMap<String, Long> sales;
+	private HashMap<String, Long> sales = new HashMap<>();
 
 	private ClaimManager manager;
 
@@ -70,7 +70,7 @@ public class ClaimByebye implements ClaimByebyeAPI {
 
 	@Override
 	public boolean isOwner(Player player, Claim claim) {
-		return claim.ownerID.equals(player.getUniqueId());
+		return claim.getOwnerUUID(true).equals(player.getUniqueId());
 	}
 
 

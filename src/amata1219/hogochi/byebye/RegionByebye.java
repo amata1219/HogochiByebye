@@ -20,7 +20,7 @@ import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
 public class RegionByebye implements RegionByebyeAPI {
 
-	private HashMap<String, Long> sales;
+	private HashMap<String, Long> sales = new HashMap<>();
 
 	private World mainflat;
 	private RegionManager manager;
@@ -44,7 +44,7 @@ public class RegionByebye implements RegionByebyeAPI {
 			}
 		}
 
-		mainflat = plugin.getServer().getWorld("mainflat");
+		mainflat = plugin.getServer().getWorld("main_flat");
 
 		manager = plugin.getWorldGuardPlugin().getRegionManager(mainflat);
 	}
@@ -249,7 +249,7 @@ public class RegionByebye implements RegionByebyeAPI {
 
 	@Override
 	public boolean isBuyable(ProtectedRegion region){
-		return sales.containsKey(region.getId());
+		return sales.containsKey(region.getId()) || isAdminRegion(region);
 	}
 
 	@Override

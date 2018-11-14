@@ -23,6 +23,8 @@ public class HogochiByebye extends JavaPlugin {
 	public void onEnable(){
 		plugin = this;
 
+		saveDefaultConfig();
+
 		Plugin worldGuard = getServer().getPluginManager().getPlugin("WorldGuard");
 		if(worldGuard == null)
 			throw new NullPointerException("[HogochiByebye] WorldGuard is not exist!");
