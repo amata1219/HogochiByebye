@@ -3,9 +3,9 @@ package amata1219.hogochi.byebye;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 import com.sk89q.worldedit.BlockVector;
@@ -21,9 +21,6 @@ import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 public class RegionByebye implements RegionByebyeAPI {
 
 	private HashMap<String, Long> sales = new HashMap<>();
-
-	private World mainflat;
-	private RegionManager manager;
 
 	private final int roadWidth = 10;
 	private final int regionWidth = 50;
@@ -43,23 +40,19 @@ public class RegionByebye implements RegionByebyeAPI {
 				sales.put(id, plugin.getConfig().getLong(id));
 			}
 		}
+	}
 
-		mainflat = plugin.getServer().getWorld("main_flat");
-
-		manager = plugin.getWorldGuardPlugin().getRegionManager(mainflat);
+	public RegionManager getRegionManager(){
+		return HogochiByebye.getPlugin().getWorldGuardPlugin().getRegionManager(Bukkit.getWorld("main_flat"));
 	}
 
 	public void unload(){
 		HogochiByebye plugin = HogochiByebye.getPlugin();
 
-		plugin.getConfig().createSection("Regions", sales);
+		sales.forEach((k, v) -> plugin.getConfig().set("Regions." + k, String.valueOf(v)));
 
 		plugin.saveConfig();
 		plugin.reloadConfig();
-	}
-
-	public RegionManager getRegionManager(){
-		return manager;
 	}
 
 	@Override
@@ -216,7 +209,7 @@ public class RegionByebye implements RegionByebyeAPI {
 
 	@Override
 	public boolean isExistRegionByLocation(Location location){
-		for(ProtectedRegion region : manager.getApplicableRegions(location)){
+		for(ProtectedRegion region  :getRegionManager().getApplicableRegions(location)){
 			if(region.getId().startsWith("mainflatroad"))
 				continue;
 			else
@@ -227,7 +220,7 @@ public class RegionByebye implements RegionByebyeAPI {
 
 	@Override
 	public ProtectedRegion getProtectedRegion(Location location){
-		for(ProtectedRegion region : manager.getApplicableRegions(location)){
+		for(ProtectedRegion region : getRegionManager().getApplicableRegions(location)){
 			if(region.getId().startsWith("mainflatroad"))
 				continue;
 			else
@@ -325,11 +318,11 @@ public class RegionByebye implements RegionByebyeAPI {
 	}*/
 
 	public Location toLocation(int x, int z, boolean isMin){
-		return new Location(mainflat, x, isMin ? 0 : 255, z);
+		return new Location(Bukkit.getWorld("main_flat"), x, isMin ? 0 : 255, z);
 	}
 
 	public Location toLoc(BlockVector v, boolean isZero){
-		return new Location(mainflat, v.getX(), isZero ? 0 : 255, v.getZ());
+		return new Location(Bukkit.getWorld("main_flat"), v.getX(), isZero ? 0 : 255, v.getZ());
 	}
 
 	public Location correct(Location loc, boolean[] minus){
@@ -375,9 +368,9 @@ public class RegionByebye implements RegionByebyeAPI {
 	@SuppressWarnings("deprecation")
 	public void visible(Player player, ProtectedRegion region){
 		BlockVector sb = region.getMinimumPoint();
-		Location s = new Location(mainflat, sb.getX(), 62, sb.getZ());
+		Location s = new Location(Bukkit.getWorld("main_flat"), sb.getX(), 62, sb.getZ());
 		BlockVector lb = region.getMaximumPoint();
-		Location l = new Location(mainflat, lb.getX(), 62, lb.getZ());
+		Location l = new Location(Bukkit.getWorld("main_flat"), lb.getX(), 62, lb.getZ());
 		player.sendBlockChange(s, Material.IRON_BLOCK, (byte) 0);
 		player.sendBlockChange(l, Material.IRON_BLOCK, (byte) 0);
 	}

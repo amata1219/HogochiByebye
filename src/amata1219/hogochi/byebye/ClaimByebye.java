@@ -12,8 +12,6 @@ public class ClaimByebye implements ClaimByebyeAPI {
 
 	private HashMap<String, Long> sales = new HashMap<>();
 
-	private ClaimManager manager;
-
 	public ClaimByebye(){
 		load();
 	}
@@ -29,22 +27,24 @@ public class ClaimByebye implements ClaimByebyeAPI {
 				sales.put(id, plugin.getConfig().getLong(id));
 			}
 		}
-
-		manager = plugin.getGriefPreventionX().getGriefPreventionXApi().getClaimManager();
 	}
 
 	public void unload(){
 		HogochiByebye plugin = HogochiByebye.getPlugin();
 
-		plugin.getConfig().createSection("Claims", sales);
+		sales.forEach((k, v) -> plugin.getConfig().set("Claims." + k, String.valueOf(v)));
 
 		plugin.saveConfig();
 		plugin.reloadConfig();
 	}
 
+	public ClaimManager getClaimManager(){
+		return HogochiByebye.getPlugin().getGriefPreventionX().getGriefPreventionXApi().getClaimManager();
+	}
+
 	@Override
 	public void buy(Player player, Claim claim) {
-		manager.sellClaim(claim, player, 0);
+		getClaimManager().sellClaim(claim, player, 0);
 
 	}
 
@@ -60,12 +60,12 @@ public class ClaimByebye implements ClaimByebyeAPI {
 
 	@Override
 	public boolean isExistClaimByLocation(Location location) {
-		return manager.getClaimAt(location) != null;
+		return getClaimManager().getClaimAt(location) != null;
 	}
 
 	@Override
 	public Claim getClaim(Location location) {
-		return manager.getClaimAt(location);
+		return getClaimManager().getClaimAt(location);
 	}
 
 	@Override
