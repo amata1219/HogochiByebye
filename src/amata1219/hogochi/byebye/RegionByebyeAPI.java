@@ -19,7 +19,7 @@ public interface RegionByebyeAPI {
 
 	ProtectedRegion[] splitLargeRegion(Player player, ProtectedRegion region, boolean isAlongX);
 
-	ProtectedRegion[] splitSmallRegion(Player player, ProtectedRegion region);
+	ProtectedRegion[] splitSmallRegion(Player player, ProtectedRegion region, boolean setAdminRegion);
 
 	boolean isExistRegionByLocation(Location location);
 

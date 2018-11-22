@@ -174,7 +174,7 @@ public class RegionByebye implements RegionByebyeAPI {
 	}
 
 	@Override
-	public ProtectedRegion[] splitSmallRegion(Player player, ProtectedRegion region){
+	public ProtectedRegion[] splitSmallRegion(Player player, ProtectedRegion region, boolean setAdminRegion){
 		//boolean isX = abs(abs(region.getMaximumPoint().getBlockX()) - abs(region.getMinimumPoint().getBlockX())) == claimWidth / 2 - 1;
 		boolean isX = is25x50(region);
 		Location minl = toLoc(region.getMinimumPoint(), true);
@@ -190,13 +190,24 @@ public class RegionByebye implements RegionByebyeAPI {
 		removeRegion(region);
 		ProtectedRegion newRegion1 = null;
 		ProtectedRegion newRegion2 = null;
-		if(isX){
-			newRegion1 = createRegion(player, new int[]{minsc[0], minsc[1], minsc[2], minsc[3]}, minMinus);
-			newRegion2 = createRegion(player, new int[]{maxsc[0], maxsc[1], maxsc[2], maxsc[3]}, maxMinus);
+		if(setAdminRegion){
+			if(isX){
+				newRegion1 = createRegion("admin_" + System.nanoTime(), player, new int[]{minsc[0], minsc[1], minsc[2], minsc[3]}, minMinus);
+				newRegion2 = createRegion("admin_" + System.nanoTime(), player, new int[]{maxsc[0], maxsc[1], maxsc[2], maxsc[3]}, maxMinus);
+			}else{
+				newRegion1 = createRegion("admin_" + System.nanoTime(), player, new int[]{minsc[0], minsc[1], minsc[2], minsc[3]}, minMinus);
+				newRegion2 = createRegion("admin_" + System.nanoTime(), player, new int[]{maxsc[0], maxsc[1], maxsc[2], maxsc[3]}, maxMinus);
+			}
 		}else{
-			newRegion1 = createRegion(player, new int[]{minsc[0], minsc[1], minsc[2], minsc[3]}, minMinus);
-			newRegion2 = createRegion(player, new int[]{maxsc[0], maxsc[1], maxsc[2], maxsc[3]}, maxMinus);
+			if(isX){
+				newRegion1 = createRegion(player, new int[]{minsc[0], minsc[1], minsc[2], minsc[3]}, minMinus);
+				newRegion2 = createRegion(player, new int[]{maxsc[0], maxsc[1], maxsc[2], maxsc[3]}, maxMinus);
+			}else{
+				newRegion1 = createRegion(player, new int[]{minsc[0], minsc[1], minsc[2], minsc[3]}, minMinus);
+				newRegion2 = createRegion(player, new int[]{maxsc[0], maxsc[1], maxsc[2], maxsc[3]}, maxMinus);
+			}
 		}
+
 		newRegion1.setOwners(owners);
 		newRegion1.setMembers(members);
 		newRegion1.setFlags(flags);
@@ -210,7 +221,7 @@ public class RegionByebye implements RegionByebyeAPI {
 	@Override
 	public boolean isExistRegionByLocation(Location location){
 		for(ProtectedRegion region  :getRegionManager().getApplicableRegions(location)){
-			if(region.getId().startsWith("mainflatroad"))
+			if(region.getId().startsWith("mainflatroad_"))
 				continue;
 			else
 				return true;
@@ -221,7 +232,7 @@ public class RegionByebye implements RegionByebyeAPI {
 	@Override
 	public ProtectedRegion getProtectedRegion(Location location){
 		for(ProtectedRegion region : getRegionManager().getApplicableRegions(location)){
-			if(region.getId().startsWith("mainflatroad"))
+			if(region.getId().startsWith("mainflatroad_"))
 				continue;
 			else
 				return region;
@@ -289,12 +300,15 @@ public class RegionByebye implements RegionByebyeAPI {
 		if(!isBuyable(region))
 			return -1;
 
+		if(isAdminRegion(region))
+			return -1;
+
 		return sales.get(region.getId());
 	}
 
 	@Override
 	public boolean isAdminRegion(ProtectedRegion region){
-		return region.getId().startsWith("admin");
+		return region.getId().startsWith("admin_");
 	}
 
 	@Override
@@ -399,6 +413,28 @@ public class RegionByebye implements RegionByebyeAPI {
 		}
 		int[] corners = minmax(setMinus(crs, minus));
 		ProtectedCuboidRegion region = new ProtectedCuboidRegion(createID(corners), toBlockVector(toLocation(corners[0], corners[1], true)), toBlockVector(toLocation(corners[2], corners[3], false)));
+		region.getOwners().addPlayer(player.getUniqueId());
+		getRegionManager().addRegion(region);
+		visible(player, region);
+		return region;
+	}
+
+	public ProtectedRegion createRegion(String id, Player player, int[] crs, boolean[] minus){
+		boolean a = minus[0], b = minus[1];
+		if(a && b){
+			crs[0]++;
+			crs[2]++;
+			crs[1]++;
+			crs[3]++;
+		}else if(a && !b){
+			crs[0]++;
+			crs[2]++;
+		}else if(!a && b){
+			crs[1]++;
+			crs[3]++;
+		}
+		int[] corners = minmax(setMinus(crs, minus));
+		ProtectedCuboidRegion region = new ProtectedCuboidRegion(id, toBlockVector(toLocation(corners[0], corners[1], true)), toBlockVector(toLocation(corners[2], corners[3], false)));
 		region.getOwners().addPlayer(player.getUniqueId());
 		getRegionManager().addRegion(region);
 		visible(player, region);
