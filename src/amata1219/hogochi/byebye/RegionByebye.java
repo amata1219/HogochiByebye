@@ -285,14 +285,16 @@ public class RegionByebye implements RegionByebyeAPI {
 	//X
 	public int getWidth(ProtectedRegion region){
 		BlockVector s = region.getMinimumPoint(), l = region.getMaximumPoint();
-		return abs(l.getBlockX()) - abs(s.getBlockX());
+		System.out.println(abs(l.getBlockX()) - abs(s.getBlockX()) + 1);
+		return abs(l.getBlockX()) - abs(s.getBlockX()) + 1;
 	}
 
 	//Z
 	@Override
 	public int getDepth(ProtectedRegion region){
 		BlockVector s = region.getMinimumPoint(), l = region.getMaximumPoint();
-		return abs(l.getBlockZ()) - abs(s.getBlockZ());
+		System.out.println(abs(l.getBlockX()) - abs(s.getBlockX()) + 1);
+		return abs(l.getBlockZ()) - abs(s.getBlockZ()) + 1;
 	}
 
 	@Override
