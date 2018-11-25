@@ -56,7 +56,7 @@ public class RegionByebye {
 		rb.sales.remove(region.getId());
 	}
 
-	public static ProtectedRegion combine(Player player, ProtectedRegion pr1, ProtectedRegion pr2){
+	public static ProtectedRegion combineRegions(Player player, ProtectedRegion pr1, ProtectedRegion pr2){
 		BlockVector minVector = pr1.getMinimumPoint();
 		BlockVector maxVector = pr2.getMaximumPoint();
 
@@ -111,7 +111,7 @@ public class RegionByebye {
 		return regions;
 	}
 
-	public static ProtectedRegion[] splitSmallRegion(Player player, ProtectedRegion pr){
+	public static ProtectedRegion[] splitSmallRegion(Player player, ProtectedRegion pr, boolean adminRegion){
 		BlockVector minVector = pr.getMinimumPoint();
 		BlockVector maxVector = pr.getMaximumPoint();
 
@@ -127,12 +127,12 @@ public class RegionByebye {
 
 		ProtectedRegion[] regions = new ProtectedRegion[2];
 
-		regions[0] = Util.createProtectedRegion(IdType.USER, r1);
+		regions[0] = Util.createProtectedRegion(adminRegion ? IdType.ADMIN : IdType.USER, r1);
 		regions[0].getOwners().addPlayer(player.getUniqueId());
 		regions[0].setMembers(members);
 		regions[0].setFlags(flags);
 
-		regions[1] = Util.createProtectedRegion(IdType.USER, r2);
+		regions[1] = Util.createProtectedRegion(adminRegion ? IdType.ADMIN : IdType.USER, r2);
 		regions[1].getOwners().addPlayer(player.getUniqueId());
 		regions[1].setMembers(members);
 		regions[1].setFlags(flags);

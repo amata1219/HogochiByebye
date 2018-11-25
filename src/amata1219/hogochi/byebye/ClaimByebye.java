@@ -51,7 +51,7 @@ public class ClaimByebye {
 		cb.sales.remove(String.valueOf(claim.getID()));
 	}
 
-	public static boolean isExistClaimByLocation(Location location) {
+	public static boolean isExistClaim(Location location) {
 		return getClaimManager().getClaimAt(location) != null;
 	}
 
