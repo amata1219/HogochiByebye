@@ -1,13 +1,13 @@
 package amata1219.hogochi.byebye;
 
-import org.bukkit.Location;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 
 import me.ryanhamshire.GriefPrevention.GriefPreventionX;
-import me.ryanhamshire.GriefPrevention.claims.Claim;
 
 public class HogochiByebye extends JavaPlugin {
 
@@ -16,10 +16,8 @@ public class HogochiByebye extends JavaPlugin {
 	private WorldGuardPlugin worldGuard;
 	private GriefPreventionX griefPreventionX;
 
-	private RegionByebye regionByebye;
-	private ClaimByebye claimByebye;
+	private BukkitTask task;
 
-	@Override
 	public void onEnable(){
 		plugin = this;
 
@@ -37,14 +35,26 @@ public class HogochiByebye extends JavaPlugin {
 
 		this.griefPreventionX = (GriefPreventionX) griefPreventionX;
 
-		regionByebye = new RegionByebye();
-		claimByebye = new ClaimByebye();
+		RegionByebye.load();
+		ClaimByebye.load();
+
+		task = new BukkitRunnable(){
+
+			@Override
+			public void run(){
+				RegionByebye.save();
+				ClaimByebye.save();
+			}
+
+		}.runTaskTimer(this, 0, 36000);
 	}
 
 	@Override
 	public void onDisable(){
-		regionByebye.unload();
-		claimByebye.unload();
+		task.cancel();
+
+		RegionByebye.save();
+		ClaimByebye.save();
 	}
 
 	public static HogochiByebye getPlugin(){
@@ -57,18 +67,6 @@ public class HogochiByebye extends JavaPlugin {
 
 	public GriefPreventionX getGriefPreventionX(){
 		return griefPreventionX;
-	}
-
-	public RegionByebyeAPI getRegionByebyeAPI(){
-		return (RegionByebyeAPI) regionByebye;
-	}
-
-	public ClaimByebyeAPI getClaimByebyeAPI(){
-		return (ClaimByebyeAPI) claimByebye;
-	}
-
-	public Claim getClaim(Location location){
-		return griefPreventionX.getGriefPreventionXApi().getClaimManager().getClaimAt(location);
 	}
 
 }
