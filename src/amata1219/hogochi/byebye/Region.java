@@ -62,4 +62,8 @@ public class Region {
 		return false;
 	}
 
+	public ProtectedRegion getProtectedRegion(){
+		return RegionByebye.getProtectedRegion(min.getX(), min.getZ());
+	}
+
 }

@@ -234,4 +234,25 @@ public class RegionByebye {
 		return region.getId().startsWith(IdType.ADMIN.getString());
 	}
 
+	public static Direction[] getDirections(ProtectedRegion region){
+		int x = region.getMinimumPoint().getBlockX();
+		int z = region.getMinimumPoint().getBlockZ();
+
+		Direction[] directions = is25x25(region) ? new Direction[]{new Compartment(region).getRegion(x, z).getDirection()} : (is50x50(region) ? Direction.values() : null);
+		if(directions != null)
+			return directions;
+
+		if(is25x50(region)){
+			if(new Compartment(region).getRegion(x, z).getDirection() == Direction.SOUTH_WEST)
+				return new Direction[]{Direction.SOUTH_WEST, Direction.NORTH_WEST};
+			else
+				return new Direction[]{Direction.SOUTH_EAST, Direction.NORTH_EAST};
+		}else{
+			if(new Compartment(region).getRegion(x, z).getDirection() == Direction.SOUTH_WEST)
+				return new Direction[]{Direction.SOUTH_WEST, Direction.SOUTH_EAST};
+			else
+				return new Direction[]{Direction.NORTH_WEST, Direction.NORTH_EAST};
+		}
+	}
+
 }

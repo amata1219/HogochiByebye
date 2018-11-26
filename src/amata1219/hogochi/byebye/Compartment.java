@@ -2,6 +2,8 @@ package amata1219.hogochi.byebye;
 
 import java.util.HashMap;
 
+import com.sk89q.worldguard.protection.regions.ProtectedRegion;
+
 public class Compartment {
 
 	private Point min, max;
@@ -42,6 +44,40 @@ public class Compartment {
 	public Compartment(int minX, int minZ, int maxX, int maxZ){
 		this.min = new Point(minX, minZ);
 		this.max = new Point(maxX, maxZ);
+
+		for(Direction direction : Direction.values())
+			regions.put(direction, Util.createRegion(direction, min, max));
+	}
+
+	public Compartment(ProtectedRegion region){
+		int x = region.getMinimumPoint().getBlockX();
+		int z = region.getMinimumPoint().getBlockZ();
+
+		boolean xMinus = Util.isUnderZero(x);
+		boolean zMinus = Util.isUnderZero(z);
+
+		x = Util.abs(x);
+		z = Util.abs(z);
+
+		int xAddress = Util.getAddress(x);
+		int zAddress = Util.getAddress(z);
+
+		int minX = Util.getMin(xAddress);
+		int minZ = Util.getMin(zAddress);
+
+		int maxX = Util.getMax(minX);
+		int maxZ = Util.getMax(minZ);
+
+		minX = Util.applyMinus(minX, xMinus);
+		minZ = Util.applyMinus(minZ, zMinus);
+		maxX = Util.applyMinus(maxX, xMinus);
+		maxZ = Util.applyMinus(maxZ, zMinus);
+
+		int[] sortedX = Util.sortMinMax(minX, maxX);
+		int[] sortedZ = Util.sortMinMax(minZ, maxZ);
+
+		this.min = new Point(sortedX[0], sortedZ[0]);
+		this.max = new Point(sortedX[1], sortedZ[1]);
 
 		for(Direction direction : Direction.values())
 			regions.put(direction, Util.createRegion(direction, min, max));
