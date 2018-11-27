@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 
 import com.sk89q.worldedit.BlockVector;
@@ -27,7 +28,11 @@ public class RegionByebye {
 
 		HogochiByebye plugin = HogochiByebye.getPlugin();
 
-		plugin.getConfig().getConfigurationSection("Regions").getKeys(false).forEach(id -> rb.sales.put(id, plugin.getConfig().getLong("Regions." + id)));
+		ConfigurationSection section = plugin.getConfig().getConfigurationSection("Regions");
+		if(section == null)
+			return;
+
+		section.getKeys(false).forEach(id -> rb.sales.put(id, plugin.getConfig().getLong("Regions." + id)));
 	}
 
 	public static void save(){
@@ -196,13 +201,15 @@ public class RegionByebye {
 
 	//X
 	public static int getWidth(ProtectedRegion region){
-		int[] sortedX = Util.sortMinMax(region.getMinimumPoint().getBlockX(), region.getMaximumPoint().getBlockX());
+		int[] sortedX = Util.sortMinMax(Util.abs(region.getMinimumPoint().getBlockX()), Util.abs(region.getMaximumPoint().getBlockX()));
+		System.out.println("WIDTH: " + ( sortedX[1] - sortedX[0] + 1));
 		return sortedX[1] - sortedX[0] + 1;
 	}
 
 	//Z
 	public static int getDepth(ProtectedRegion region){
-		int[] sortedZ = Util.sortMinMax(region.getMinimumPoint().getBlockZ(), region.getMaximumPoint().getBlockZ());
+		int[] sortedZ = Util.sortMinMax(Util.abs(region.getMinimumPoint().getBlockZ()), Util.abs(region.getMaximumPoint().getBlockZ()));
+		System.out.println("DEPTH: " + ( sortedZ[1] - sortedZ[0] + 1));
 		return sortedZ[1] - sortedZ[0] + 1;
 	}
 
@@ -235,10 +242,23 @@ public class RegionByebye {
 	}
 
 	public static Direction[] getDirections(ProtectedRegion region){
-		int x = region.getMinimumPoint().getBlockX();
-		int z = region.getMinimumPoint().getBlockZ();
+		int x = Util.plusOne(region.getMinimumPoint().getBlockX());
+		int z = Util.plusOne(region.getMinimumPoint().getBlockZ());
 
-		Direction[] directions = is25x25(region) ? new Direction[]{new Compartment(region).getRegion(x, z).getDirection()} : (is50x50(region) ? Direction.values() : null);
+		Direction[] directions = null;
+		if(is25x25(region)){
+			Compartment cpm = new Compartment(region);
+			for(Direction d : Direction.values()){
+				Region r = cpm.getRegion(d);
+				Point m1 = r.getMin();
+				Point m2 = r.getMax();
+				System.out.println(d.toString() + ": " + "Min(" + m1.getX() + ", " + m1.getZ() + "), Max(" + m2.getX() + ", " + m2.getZ() + ")");
+			}
+
+			directions = new Direction[]{cpm.getRegion(x, z).getDirection()};
+		}else if(is50x50(region)){
+			directions = Direction.values();
+		}
 		if(directions != null)
 			return directions;
 

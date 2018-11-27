@@ -3,6 +3,7 @@ package amata1219.hogochi.byebye;
 import java.util.HashMap;
 
 import org.bukkit.Location;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 
 import me.ryanhamshire.GriefPrevention.api.ClaimManager;
@@ -23,7 +24,11 @@ public class ClaimByebye {
 
 		HogochiByebye plugin = HogochiByebye.getPlugin();
 
-		plugin.getConfig().getConfigurationSection("Claims").getKeys(false).forEach(id -> cb.sales.put(id, plugin.getConfig().getLong("Claims." + id)));
+		ConfigurationSection section = plugin.getConfig().getConfigurationSection("Claims");
+		if(section == null)
+			return;
+
+		section.getKeys(false).forEach(id -> cb.sales.put(id, plugin.getConfig().getLong("Claims." + id)));
 	}
 
 	public static void save(){

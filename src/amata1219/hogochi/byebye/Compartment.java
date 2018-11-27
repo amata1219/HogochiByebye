@@ -88,6 +88,9 @@ public class Compartment {
 	}
 
 	public Region getRegion(int x, int z){
+		x = Util.plusOne(x);
+		z = Util.plusOne(z);
+
 		for(Region region : regions.values()){
 			if(region.isIn(x, z))
 				return region;
