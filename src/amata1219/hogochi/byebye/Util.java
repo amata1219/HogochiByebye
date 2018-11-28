@@ -45,6 +45,10 @@ public class Util {
 		return n > -0 ? n + 1 : n - 1;
 	}
 
+	public static int minusOne(int n){
+		return n > -0 ? n - 1 : n + 1;
+	}
+
 	public static boolean isIn(int n, int lowerLimit, int upperLimit){
 		return lowerLimit <= n && n <= upperLimit;
 	}
@@ -97,18 +101,18 @@ public class Util {
 			maxZ = max.getAbsoluteZ();
 			break;
 		case NORTH_WEST:
-			minX = min.getAbsoluteX();
-			minZ = min.getAbsoluteZ() + REGION_ONE_SIDE;
-
-			maxX = max.getAbsoluteZ() - REGION_ONE_SIDE;
-			maxZ = max.getAbsoluteZ();
-			break;
-		case SOUTH_EAST:
 			minX = min.getAbsoluteX() + REGION_ONE_SIDE;
 			minZ = min.getAbsoluteZ();
 
 			maxX = max.getAbsoluteX();
 			maxZ = max.getAbsoluteZ() - REGION_ONE_SIDE;
+			break;
+		case SOUTH_EAST:
+			minX = min.getAbsoluteX();
+			minZ = min.getAbsoluteZ() + REGION_ONE_SIDE;
+
+			maxX = max.getAbsoluteZ() - REGION_ONE_SIDE;
+			maxZ = max.getAbsoluteZ();
 			break;
 		case SOUTH_WEST:
 			minX = min.getAbsoluteX();

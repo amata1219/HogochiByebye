@@ -70,7 +70,14 @@ public class RegionByebye {
 		Region r1 = cpm.getRegion(minVector.getBlockX(), minVector.getBlockZ());
 		Region r2 = cpm.getRegion(maxVector.getBlockX(), maxVector.getBlockZ());
 
+		System.out.println("MinMin: " + minVector.getBlockX() + " : " + minVector.getBlockZ());
+		System.out.println("MinMax: " + pr1.getMaximumPoint().getBlockX() + " : " + pr1.getMaximumPoint().getBlockZ());
+		System.out.println("MinMax: " + pr2.getMinimumPoint().getBlockX() + " : " + pr2.getMinimumPoint().getBlockZ());
+		System.out.println("MaxMax: " + maxVector.getBlockX() + " : " + maxVector.getBlockZ());
+
 		Region region = cpm.combine(r1.getDirection(), r2.getDirection());
+		System.out.println(r1.getDirection() + " : " + r2.getDirection());
+
 		if(region == null)
 			return null;
 
@@ -202,14 +209,12 @@ public class RegionByebye {
 	//X
 	public static int getWidth(ProtectedRegion region){
 		int[] sortedX = Util.sortMinMax(Util.abs(region.getMinimumPoint().getBlockX()), Util.abs(region.getMaximumPoint().getBlockX()));
-		System.out.println("WIDTH: " + ( sortedX[1] - sortedX[0] + 1));
 		return sortedX[1] - sortedX[0] + 1;
 	}
 
 	//Z
 	public static int getDepth(ProtectedRegion region){
 		int[] sortedZ = Util.sortMinMax(Util.abs(region.getMinimumPoint().getBlockZ()), Util.abs(region.getMaximumPoint().getBlockZ()));
-		System.out.println("DEPTH: " + ( sortedZ[1] - sortedZ[0] + 1));
 		return sortedZ[1] - sortedZ[0] + 1;
 	}
 

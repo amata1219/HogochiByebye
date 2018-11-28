@@ -11,6 +11,9 @@ public class Compartment {
 	private HashMap<Direction, Region> regions = new HashMap<>();
 
 	public Compartment(int x, int z){
+		x = Util.plusOne(x);
+		z = Util.plusOne(z);
+
 		boolean xMinus = Util.isUnderZero(x);
 		boolean zMinus = Util.isUnderZero(z);
 
@@ -52,6 +55,9 @@ public class Compartment {
 	public Compartment(ProtectedRegion region){
 		int x = region.getMinimumPoint().getBlockX();
 		int z = region.getMinimumPoint().getBlockZ();
+
+		x = Util.plusOne(x);
+		z = Util.plusOne(z);
 
 		boolean xMinus = Util.isUnderZero(x);
 		boolean zMinus = Util.isUnderZero(z);
@@ -104,14 +110,20 @@ public class Compartment {
 	}
 
 	public Region combine(Direction d1, Direction d2){
+		System.out.println("COMBINE: " + 1);
+
 		if(d1 == d2)
 			return null;
+
+		System.out.println("COMBINE: " + 2);
 
 		boolean d1Even = Util.isEven(d1.getNumber());
 		boolean d2Even = Util.isEven(d2.getNumber());
 
 		if((d1Even && d2Even) || (!d1Even && !d2Even))
 			return null;
+
+		System.out.println("COMBINE: " + 3);
 
 		if(d1.getNumber() > d2.getNumber()){
 			Direction d3 = d1;
