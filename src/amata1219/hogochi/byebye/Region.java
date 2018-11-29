@@ -46,6 +46,7 @@ public class Region {
 	}
 
 	public boolean isIn(int x, int z){
+		System.out.println("IS IN: " + x + ", " + min.getX() + ", " + max.getX() + ", " + z + ", " + min.getZ() + ", " + max.getZ());
 		return Util.isIn(x, min.getX(), max.getX()) && Util.isIn(z, min.getZ(), max.getZ());
 	}
 

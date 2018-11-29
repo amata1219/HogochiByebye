@@ -42,7 +42,14 @@ public class Util {
 	}
 
 	public static boolean isIn(int n, int lowerLimit, int upperLimit){
+		if(isUnderZero(lowerLimit) && isUnderZero(upperLimit))
+			return upperLimit <= n && n <= lowerLimit;
+
 		return lowerLimit <= n && n <= upperLimit;
+	}
+
+	public static int minus(int n){
+		return isUnderZero(n) ? n - 1 : n;
 	}
 
 	public static int[] sortMinMax(int n1, int n2){
@@ -126,6 +133,8 @@ public class Util {
 		minZ = Util.applyMinus(sortedZ[0], minusMinZ);
 		maxX = Util.applyMinus(sortedX[1], minusMaxX);
 		maxZ = Util.applyMinus(sortedZ[1], minusMaxZ);
+
+		System.out.println("CREATE REGION: " + "Direction." + direction + ", " + minX + ", " + minZ + ", " + maxX + ", " + maxZ);
 
 		return new Region(direction, minX, minZ, maxX, maxZ);
 	}

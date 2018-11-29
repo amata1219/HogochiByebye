@@ -11,6 +11,9 @@ public class Compartment {
 	private HashMap<Direction, Region> regions = new HashMap<>();
 
 	public Compartment(int x, int z){
+		x = Util.minus(x);
+		z = Util.minus(z);
+
 		boolean xMinus = Util.isUnderZero(x);
 		boolean zMinus = Util.isUnderZero(z);
 
@@ -52,8 +55,8 @@ public class Compartment {
 	}
 
 	public Compartment(ProtectedRegion region){
-		int x = region.getMinimumPoint().getBlockX();
-		int z = region.getMinimumPoint().getBlockZ();
+		int x = Util.minus(region.getMinimumPoint().getBlockX());
+		int z = Util.minus(region.getMinimumPoint().getBlockZ());
 
 		boolean xMinus = Util.isUnderZero(x);
 		boolean zMinus = Util.isUnderZero(z);
@@ -90,9 +93,6 @@ public class Compartment {
 	}
 
 	public Region getRegion(int x, int z){
-		//x = Util.plusOne(x);
-		//z = Util.plusOne(z);
-
 		for(Region region : regions.values()){
 			if(region.isIn(x, z))
 				return region;

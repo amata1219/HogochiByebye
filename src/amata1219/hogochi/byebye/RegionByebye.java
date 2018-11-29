@@ -153,7 +153,13 @@ public class RegionByebye {
 	}
 
 	public static boolean isExistProtectedRegion(int x, int z){
-		return new Compartment(x, z).getRegion(x, z).isProtected();
+		Compartment cpm = new Compartment(x, z);
+
+		Region region = cpm.getRegion(x, z);
+		if(region == null)
+			return false;
+
+		return region.isProtected();
 	}
 
 	public static ProtectedRegion getProtectedRegion(int x, int z){
@@ -250,20 +256,17 @@ public class RegionByebye {
 		int x = region.getMinimumPoint().getBlockX();
 		int z = region.getMinimumPoint().getBlockZ();
 
+		System.out.println(region.getMinimumPoint().getBlockX() + ", " +  region.getMinimumPoint().getBlockZ());
+
 		Direction[] directions = null;
 		if(is25x25(region)){
 			Compartment cpm = new Compartment(region);
-			for(Direction d : Direction.values()){
-				Region r = cpm.getRegion(d);
-				Point m1 = r.getMin();
-				Point m2 = r.getMax();
-				System.out.println(d.toString() + ": " + "Min(" + m1.getX() + ", " + m1.getZ() + "), Max(" + m2.getX() + ", " + m2.getZ() + ")");
-			}
 
 			directions = new Direction[]{cpm.getRegion(x, z).getDirection()};
 		}else if(is50x50(region)){
 			directions = Direction.values();
 		}
+
 		if(directions != null)
 			return directions;
 
