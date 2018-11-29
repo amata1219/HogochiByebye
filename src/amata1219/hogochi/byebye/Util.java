@@ -34,19 +34,11 @@ public class Util {
 	}
 
 	public static int getMin(int address){
-		return address * (ROAD_WIDTH + COMPARTMENT_ONE_SIDE) + 6;
+		return address * (ROAD_WIDTH + COMPARTMENT_ONE_SIDE) + 5;
 	}
 
 	public static int getMax(int min){
 		return min + (COMPARTMENT_ONE_SIDE - 1);
-	}
-
-	public static int plusOne(int n){
-		return n > -0 ? n + 1 : n - 1;
-	}
-
-	public static int minusOne(int n){
-		return n > -0 ? n - 1 : n + 1;
 	}
 
 	public static boolean isIn(int n, int lowerLimit, int upperLimit){
@@ -57,7 +49,7 @@ public class Util {
 		int n3 = n1;
 
 		n1 = n1 < n2 ? n1 : n2;
-		n2 = n1 > n2 ? n3 : n2;
+		n2 = n3 > n2 ? n3 : n2;
 
 		return new int[]{n1, n2};
 	}
@@ -91,6 +83,8 @@ public class Util {
 
 	public static Region createRegion(Direction direction, Point min, Point max){
 		int minX = 0, minZ = 0, maxX = 0, maxZ = 0;
+
+		boolean minusMinX = Util.isUnderZero(min.getX()), minusMinZ = Util.isUnderZero(min.getZ()), minusMaxX = Util.isUnderZero(max.getX()), minusMaxZ = Util.isUnderZero(max.getZ());
 
 		switch(direction){
 		case NORTH_EAST:
@@ -128,7 +122,12 @@ public class Util {
 		int[] sortedX = Util.sortMinMax(minX, maxX);
 		int[] sortedZ = Util.sortMinMax(minZ, maxZ);
 
-		return new Region(direction, sortedX[0], sortedZ[0], sortedX[1], sortedZ[1]);
+		minX = Util.applyMinus(sortedX[0], minusMinX);
+		minZ = Util.applyMinus(sortedZ[0], minusMinZ);
+		maxX = Util.applyMinus(sortedX[1], minusMaxX);
+		maxZ = Util.applyMinus(sortedZ[1], minusMaxZ);
+
+		return new Region(direction, minX, minZ, maxX, maxZ);
 	}
 
 	public static ProtectedRegion createProtectedRegion(IdType id, Region r){

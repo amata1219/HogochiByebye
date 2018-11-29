@@ -11,9 +11,6 @@ public class Compartment {
 	private HashMap<Direction, Region> regions = new HashMap<>();
 
 	public Compartment(int x, int z){
-		x = Util.plusOne(x);
-		z = Util.plusOne(z);
-
 		boolean xMinus = Util.isUnderZero(x);
 		boolean zMinus = Util.isUnderZero(z);
 
@@ -29,19 +26,21 @@ public class Compartment {
 		int maxX = Util.getMax(minX);
 		int maxZ = Util.getMax(minZ);
 
-		minX = Util.applyMinus(minX, xMinus);
-		minZ = Util.applyMinus(minZ, zMinus);
-		maxX = Util.applyMinus(maxX, xMinus);
-		maxZ = Util.applyMinus(maxZ, zMinus);
-
 		int[] sortedX = Util.sortMinMax(minX, maxX);
 		int[] sortedZ = Util.sortMinMax(minZ, maxZ);
 
-		this.min = new Point(sortedX[0], sortedZ[0]);
-		this.max = new Point(sortedX[1], sortedZ[1]);
+		minX = Util.applyMinus(sortedX[0], xMinus);
+		minZ = Util.applyMinus(sortedZ[0], zMinus);
+		maxX = Util.applyMinus(sortedX[1], xMinus);
+		maxZ = Util.applyMinus(sortedZ[1], zMinus);
+
+		this.min = new Point(minX, minZ);
+		this.max = new Point(maxX, maxZ);
 
 		for(Direction direction : Direction.values())
 			regions.put(direction, Util.createRegion(direction, min, max));
+
+		System.out.println(min.getX() + ", " + min.getZ() + ", " + max.getX() + ", " + max.getZ());
 	}
 
 	public Compartment(int minX, int minZ, int maxX, int maxZ){
@@ -56,9 +55,6 @@ public class Compartment {
 		int x = region.getMinimumPoint().getBlockX();
 		int z = region.getMinimumPoint().getBlockZ();
 
-		x = Util.plusOne(x);
-		z = Util.plusOne(z);
-
 		boolean xMinus = Util.isUnderZero(x);
 		boolean zMinus = Util.isUnderZero(z);
 
@@ -74,16 +70,16 @@ public class Compartment {
 		int maxX = Util.getMax(minX);
 		int maxZ = Util.getMax(minZ);
 
-		minX = Util.applyMinus(minX, xMinus);
-		minZ = Util.applyMinus(minZ, zMinus);
-		maxX = Util.applyMinus(maxX, xMinus);
-		maxZ = Util.applyMinus(maxZ, zMinus);
-
 		int[] sortedX = Util.sortMinMax(minX, maxX);
 		int[] sortedZ = Util.sortMinMax(minZ, maxZ);
 
-		this.min = new Point(sortedX[0], sortedZ[0]);
-		this.max = new Point(sortedX[1], sortedZ[1]);
+		minX = Util.applyMinus(sortedX[0], xMinus);
+		minZ = Util.applyMinus(sortedZ[0], zMinus);
+		maxX = Util.applyMinus(sortedX[1], xMinus);
+		maxZ = Util.applyMinus(sortedZ[1], zMinus);
+
+		this.min = new Point(minX, minZ);
+		this.max = new Point(maxX, maxZ);
 
 		for(Direction direction : Direction.values())
 			regions.put(direction, Util.createRegion(direction, min, max));
@@ -94,8 +90,8 @@ public class Compartment {
 	}
 
 	public Region getRegion(int x, int z){
-		x = Util.plusOne(x);
-		z = Util.plusOne(z);
+		//x = Util.plusOne(x);
+		//z = Util.plusOne(z);
 
 		for(Region region : regions.values()){
 			if(region.isIn(x, z))

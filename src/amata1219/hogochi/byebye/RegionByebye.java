@@ -247,8 +247,8 @@ public class RegionByebye {
 	}
 
 	public static Direction[] getDirections(ProtectedRegion region){
-		int x = Util.plusOne(region.getMinimumPoint().getBlockX());
-		int z = Util.plusOne(region.getMinimumPoint().getBlockZ());
+		int x = region.getMinimumPoint().getBlockX();
+		int z = region.getMinimumPoint().getBlockZ();
 
 		Direction[] directions = null;
 		if(is25x25(region)){

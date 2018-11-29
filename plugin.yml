@@ -3,3 +3,10 @@ main: amata1219.hogochi.byebye.HogochiByebye
 version: 1.0.0
 depend: [FastAsyncWorldEdit,WorldEdit,WorldGuard]
 author: amata1219(Twitter@amata1219)
+
+commands:
+  rgview:
+    description: debug command.
+    usage: /<command>
+    permission: hogochi.byebye.rgview
+    permission-message: You do not have permission(<permission>).
