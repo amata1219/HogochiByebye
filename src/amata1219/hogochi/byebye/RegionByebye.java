@@ -127,6 +127,8 @@ public class RegionByebye {
 		BlockVector minVector = pr.getMinimumPoint();
 		BlockVector maxVector = pr.getMaximumPoint();
 
+		System.out.println("SPLIT: " + minVector.getBlockX() + ", " + minVector.getBlockZ() + ", " + maxVector.getBlockX() + ", " + maxVector.getBlockZ());
+
 		Compartment cpm = new Compartment(minVector.getBlockX(), minVector.getBlockZ());
 
 		Region r1 = cpm.getRegion(minVector.getBlockX(), minVector.getBlockZ());
@@ -253,24 +255,30 @@ public class RegionByebye {
 	}
 
 	public static Direction[] getDirections(ProtectedRegion region){
-		int x = region.getMinimumPoint().getBlockX();
-		int z = region.getMinimumPoint().getBlockZ();
+		if(is50x50(region))
+			return Direction.values();
+
+		int x = Util.minus(region.getMinimumPoint().getBlockX());
+		int z = Util.minus(region.getMinimumPoint().getBlockZ());
 
 		System.out.println(region.getMinimumPoint().getBlockX() + ", " +  region.getMinimumPoint().getBlockZ());
 
-		Direction[] directions = null;
-		if(is25x25(region)){
-			Compartment cpm = new Compartment(region);
+		Compartment cpm = new Compartment(region);
 
-			directions = new Direction[]{cpm.getRegion(x, z).getDirection()};
-		}else if(is50x50(region)){
-			directions = Direction.values();
-		}
-
-		if(directions != null)
-			return directions;
+		if(is25x25(region))
+			return new Direction[]{cpm.getRegion(x, z).getDirection()};
 
 		if(is25x50(region)){
+
+		}else if(is50x25(region)){
+
+		}
+
+		if(is25x25(region)){
+			return new Direction[]{new Compartment(region).getRegion(x, z).getDirection()};
+		}else if(is50x50(region)){
+			return Direction.values();
+		}else if(is25x50(region)){
 			if(new Compartment(region).getRegion(x, z).getDirection() == Direction.SOUTH_WEST)
 				return new Direction[]{Direction.SOUTH_WEST, Direction.NORTH_WEST};
 			else

@@ -11,8 +11,11 @@ public class Compartment {
 	private HashMap<Direction, Region> regions = new HashMap<>();
 
 	public Compartment(int x, int z){
+		System.out.println("XZ: " + x + ", " + z);
 		x = Util.minus(x);
 		z = Util.minus(z);
+
+		System.out.println("XZ: " + x + ", " + z);
 
 		boolean xMinus = Util.isUnderZero(x);
 		boolean zMinus = Util.isUnderZero(z);
@@ -36,6 +39,11 @@ public class Compartment {
 		minZ = Util.applyMinus(sortedZ[0], zMinus);
 		maxX = Util.applyMinus(sortedX[1], xMinus);
 		maxZ = Util.applyMinus(sortedZ[1], zMinus);
+
+		minX = Util.minus(minX);
+		minZ = Util.minus(minZ);
+		maxX = Util.minus(maxX);
+		maxZ = Util.minus(maxZ);
 
 		this.min = new Point(minX, minZ);
 		this.max = new Point(maxX, maxZ);
@@ -80,6 +88,11 @@ public class Compartment {
 		minZ = Util.applyMinus(sortedZ[0], zMinus);
 		maxX = Util.applyMinus(sortedX[1], xMinus);
 		maxZ = Util.applyMinus(sortedZ[1], zMinus);
+
+		minX = Util.minus(minX);
+		minZ = Util.minus(minZ);
+		maxX = Util.minus(maxX);
+		maxZ = Util.minus(maxZ);
 
 		this.min = new Point(minX, minZ);
 		this.max = new Point(maxX, maxZ);

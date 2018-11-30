@@ -42,10 +42,7 @@ public class Util {
 	}
 
 	public static boolean isIn(int n, int lowerLimit, int upperLimit){
-		if(isUnderZero(lowerLimit) && isUnderZero(upperLimit))
-			return upperLimit <= n && n <= lowerLimit;
-
-		return lowerLimit <= n && n <= upperLimit;
+		return lowerLimit < upperLimit ? lowerLimit <= n && n <= upperLimit : upperLimit <= n && n <= lowerLimit;
 	}
 
 	public static int minus(int n){
@@ -55,10 +52,7 @@ public class Util {
 	public static int[] sortMinMax(int n1, int n2){
 		int n3 = n1;
 
-		n1 = n1 < n2 ? n1 : n2;
-		n2 = n3 > n2 ? n3 : n2;
-
-		return new int[]{n1, n2};
+		return new int[]{n1 < n2 ? n1 : n2, n3 > n2 ? n3 : n2};
 	}
 
 	public static Location toLocation(int x, int z, boolean isMax){

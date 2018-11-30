@@ -84,15 +84,15 @@ public class HogochiByebye extends JavaPlugin implements CommandExecutor {
 			for(Direction direction : Direction.values()){
 				Region region = cpm.getRegion(direction);
 				System.out.println("REGION: " + region.getMin().getX() + ", " + region.getMin().getZ() + ", " + region.getMax().getX() + ", " + region.getMax().getZ());
-				player.sendBlockChange(new Location(Bukkit.getWorld("main_flat"), Util.minus(region.getMin().getX()), 62, Util.minus(region.getMin().getZ())), Material.GOLD_BLOCK, (byte) 0);
-				player.sendBlockChange(new Location(Bukkit.getWorld("main_flat"), Util.minus(region.getMax().getX()), 62, Util.minus(region.getMax().getZ())), Material.GOLD_BLOCK, (byte) 0);
+				player.sendBlockChange(new Location(Bukkit.getWorld("main_flat"), region.getMin().getX(), 62, region.getMin().getZ()), Material.GOLD_BLOCK, (byte) 0);
+				player.sendBlockChange(new Location(Bukkit.getWorld("main_flat"), region.getMax().getX(), 62, region.getMax().getZ()), Material.GOLD_BLOCK, (byte) 0);
 
 				new BukkitRunnable(){
 
 					@Override
 					public void run(){
-						player.sendBlockChange(new Location(Bukkit.getWorld("main_flat"), Util.minus(region.getMin().getX()), 62, Util.minus(region.getMin().getZ())), Material.GRASS, (byte) 0);
-						player.sendBlockChange(new Location(Bukkit.getWorld("main_flat"), Util.minus(region.getMax().getX()), 62, Util.minus(region.getMax().getZ())), Material.GRASS, (byte) 0);
+						player.sendBlockChange(new Location(Bukkit.getWorld("main_flat"), region.getMin().getX(), 62, region.getMin().getZ()), Material.GRASS, (byte) 0);
+						player.sendBlockChange(new Location(Bukkit.getWorld("main_flat"), region.getMax().getX(), 62,region.getMax().getZ()), Material.GRASS, (byte) 0);
 					}
 
 				}.runTaskLater(this, 300);
@@ -108,15 +108,15 @@ public class HogochiByebye extends JavaPlugin implements CommandExecutor {
 		for(Direction direction : Direction.values()){
 			Region region = cpm.getRegion(direction);
 			if(!region.isProtected()){
-				player.sendBlockChange(new Location(Bukkit.getWorld("main_flat"), Util.minus(region.getMin().getX()), 62, Util.minus(region.getMin().getZ())), Material.GOLD_BLOCK, (byte) 0);
-				player.sendBlockChange(new Location(Bukkit.getWorld("main_flat"), Util.minus(region.getMax().getX()), 62, Util.minus(region.getMax().getZ())), Material.GOLD_BLOCK, (byte) 0);
+				player.sendBlockChange(new Location(Bukkit.getWorld("main_flat"), region.getMin().getX(), 62, region.getMin().getZ()), Material.GOLD_BLOCK, (byte) 0);
+				player.sendBlockChange(new Location(Bukkit.getWorld("main_flat"), region.getMax().getX(), 62, region.getMax().getZ()), Material.GOLD_BLOCK, (byte) 0);
 
 				new BukkitRunnable(){
 
 					@Override
 					public void run(){
-						player.sendBlockChange(new Location(Bukkit.getWorld("main_flat"), Util.minus(region.getMin().getX()), 62, Util.minus(region.getMin().getZ())), Material.GRASS, (byte) 0);
-						player.sendBlockChange(new Location(Bukkit.getWorld("main_flat"), Util.minus(region.getMax().getX()), 62, Util.minus(region.getMax().getZ())), Material.GRASS, (byte) 0);
+						player.sendBlockChange(new Location(Bukkit.getWorld("main_flat"), region.getMin().getX(), 62, region.getMin().getZ()), Material.GRASS, (byte) 0);
+						player.sendBlockChange(new Location(Bukkit.getWorld("main_flat"), region.getMax().getX(), 62, region.getMax().getZ()), Material.GRASS, (byte) 0);
 					}
 
 				}.runTaskLater(this, 300);

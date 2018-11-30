@@ -46,12 +46,14 @@ public class Region {
 	}
 
 	public boolean isIn(int x, int z){
-		System.out.println("IS IN: " + x + ", " + min.getX() + ", " + max.getX() + ", " + z + ", " + min.getZ() + ", " + max.getZ());
 		return Util.isIn(x, min.getX(), max.getX()) && Util.isIn(z, min.getZ(), max.getZ());
 	}
 
 	public boolean isProtected(){
 		Location location = min.getLocation(true);
+
+		System.out.println("MIN POINT: " + min.getX() + ", " + min.getZ());
+		System.out.println("IS PROTECTED: " + location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ());
 
 		for(ProtectedRegion region : HogochiByebye.getPlugin().getWorldGuardPlugin().getRegionManager(Bukkit.getWorld("main_flat")).getApplicableRegions(location)){
 			if(region.getId().startsWith("mainflatroad_"))

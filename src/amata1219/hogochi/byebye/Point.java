@@ -45,7 +45,7 @@ public class Point {
 	}
 
 	public Location getLocation(boolean isMax){
-		return new Location(Bukkit.getWorld("main_flat"), Util.minus(x), isMax ? 255 : 0, Util.minus(z));
+		return new Location(Bukkit.getWorld("main_flat"), x, isMax ? 255 : 0, z);
 	}
 
 }
