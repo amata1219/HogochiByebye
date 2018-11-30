@@ -82,6 +82,19 @@ public class Util {
 		}
 	}
 
+	public static Direction toDirection(int x, int z){
+		boolean minusX = isUnderZero(x), minusZ = isUnderZero(z);
+
+		if(!minusX && !minusZ)
+			return Direction.NORTH_EAST;
+		else if(!minusX && minusZ)
+			return Direction.NORTH_WEST;
+		else if(minusX && !minusZ)
+			return Direction.SOUTH_EAST;
+		else
+			return Direction.SOUTH_WEST;
+	}
+
 	public static Region createRegion(Direction direction, Point min, Point max){
 		int minX = 0, minZ = 0, maxX = 0, maxZ = 0;
 
@@ -128,7 +141,7 @@ public class Util {
 		maxX = Util.applyMinus(sortedX[1], minusMaxX);
 		maxZ = Util.applyMinus(sortedZ[1], minusMaxZ);
 
-		System.out.println("CREATE REGION: " + "Direction." + direction + ", " + minX + ", " + minZ + ", " + maxX + ", " + maxZ);
+		System.out.println("CREATE REGION: " + minX + ", " + minZ + ", " + maxX + ", " + maxZ + ", " + direction.name());
 
 		return new Region(direction, minX, minZ, maxX, maxZ);
 	}

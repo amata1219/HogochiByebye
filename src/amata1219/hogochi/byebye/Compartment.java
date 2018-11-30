@@ -11,11 +11,8 @@ public class Compartment {
 	private HashMap<Direction, Region> regions = new HashMap<>();
 
 	public Compartment(int x, int z){
-		System.out.println("XZ: " + x + ", " + z);
 		x = Util.minus(x);
 		z = Util.minus(z);
-
-		System.out.println("XZ: " + x + ", " + z);
 
 		boolean xMinus = Util.isUnderZero(x);
 		boolean zMinus = Util.isUnderZero(z);
@@ -50,8 +47,6 @@ public class Compartment {
 
 		for(Direction direction : Direction.values())
 			regions.put(direction, Util.createRegion(direction, min, max));
-
-		System.out.println(min.getX() + ", " + min.getZ() + ", " + max.getX() + ", " + max.getZ());
 	}
 
 	public Compartment(int minX, int minZ, int maxX, int maxZ){
@@ -101,6 +96,14 @@ public class Compartment {
 			regions.put(direction, Util.createRegion(direction, min, max));
 	}
 
+	public Point getMin(){
+		return min;
+	}
+
+	public Point getMax(){
+		return max;
+	}
+
 	public boolean isIn(int x, int z){
 		return Util.isIn(x, min.getX(), max.getX()) && Util.isIn(z, min.getZ(), max.getZ());
 	}
@@ -119,20 +122,14 @@ public class Compartment {
 	}
 
 	public Region combine(Direction d1, Direction d2){
-		System.out.println("COMBINE: " + 1);
-
 		if(d1 == d2)
 			return null;
-
-		System.out.println("COMBINE: " + 2);
 
 		boolean d1Even = Util.isEven(d1.getNumber());
 		boolean d2Even = Util.isEven(d2.getNumber());
 
 		if((d1Even && d2Even) || (!d1Even && !d2Even))
 			return null;
-
-		System.out.println("COMBINE: " + 3);
 
 		if(d1.getNumber() > d2.getNumber()){
 			Direction d3 = d1;

@@ -77,7 +77,7 @@ public class HogochiByebye extends JavaPlugin implements CommandExecutor {
 			return true;
 		}
 
-		if(args.length == 1){
+		if(args.length == 0){
 			Player player = (Player) sender;
 			Location loc = player.getLocation();
 			Compartment cpm = new Compartment(loc.getBlockX(), loc.getBlockZ());
@@ -100,8 +100,7 @@ public class HogochiByebye extends JavaPlugin implements CommandExecutor {
 
 			player.sendMessage(ChatColor.AQUA + "DISPLAY PROTECTED REGIONS");
 			return true;
-		}
-
+		}else if(args[0].equalsIgnoreCase("pr")){
 		Player player = (Player) sender;
 		Location loc = player.getLocation();
 		Compartment cpm = new Compartment(loc.getBlockX(), loc.getBlockZ());
@@ -142,6 +141,12 @@ public class HogochiByebye extends JavaPlugin implements CommandExecutor {
 		}
 
 		player.sendMessage(ChatColor.AQUA + "DISPLAY PROTECTED REGIONS");
+		}else if(args[0].equalsIgnoreCase("remove")){
+			worldGuard.getRegionManager(Bukkit.getWorld("main_flat")).getRegions().values().forEach(region -> {
+				if(region.getId().startsWith("user_"))
+					Util.removeProtectedRegion(region);
+			});
+		}
 
 		return true;
 	}
