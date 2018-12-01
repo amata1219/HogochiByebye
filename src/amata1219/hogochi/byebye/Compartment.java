@@ -1,11 +1,14 @@
 package amata1219.hogochi.byebye;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
 public class Compartment {
 
+	private DirectionNumberTable table;
 	private Point min, max;
 
 	private HashMap<Direction, Region> regions = new HashMap<>();
@@ -13,6 +16,8 @@ public class Compartment {
 	public Compartment(int x, int z){
 		x = Util.minus(x);
 		z = Util.minus(z);
+
+		table = new DirectionNumberTable(Util.toMainDirection(x, z));
 
 		boolean xMinus = Util.isUnderZero(x);
 		boolean zMinus = Util.isUnderZero(z);
@@ -50,6 +55,8 @@ public class Compartment {
 	}
 
 	public Compartment(int minX, int minZ, int maxX, int maxZ){
+		table = new DirectionNumberTable(Util.toMainDirection(minX, minZ));
+
 		this.min = new Point(minX, minZ);
 		this.max = new Point(maxX, maxZ);
 
@@ -60,6 +67,8 @@ public class Compartment {
 	public Compartment(ProtectedRegion region){
 		int x = Util.minus(region.getMinimumPoint().getBlockX());
 		int z = Util.minus(region.getMinimumPoint().getBlockZ());
+
+		table = new DirectionNumberTable(Util.toMainDirection(x, z));
 
 		boolean xMinus = Util.isUnderZero(x);
 		boolean zMinus = Util.isUnderZero(z);
@@ -96,12 +105,31 @@ public class Compartment {
 			regions.put(direction, Util.createRegion(direction, min, max));
 	}
 
+	public DirectionNumberTable getDirectionNumberTable(){
+		return table;
+	}
+
 	public Point getMin(){
 		return min;
 	}
 
 	public Point getMax(){
 		return max;
+	}
+
+	public List<Direction> getDirections(ProtectedRegion pr){
+		List<Direction> list = new ArrayList<>();
+
+		for(Direction direction : Direction.values()){
+			Region region = getRegion(direction);
+			if(!region.isProtected())
+				continue;
+
+			if(pr.getId().equals(region.getProtectedRegion().getId()))
+				list.add(direction);
+		}
+
+		return list;
 	}
 
 	public boolean isIn(int x, int z){
@@ -122,23 +150,19 @@ public class Compartment {
 	}
 
 	public Region combine(Direction d1, Direction d2){
-		if(d1 == d2)
+		System.out.println(d1.name() + " : " + d2.name());
+
+		int w1 = d1.getNumber(), w2 = d2.getNumber();
+
+		if(d1 == d2 || Util.isEven(w1) == Util.isEven(w2))
 			return null;
 
-		boolean d1Even = Util.isEven(d1.getNumber());
-		boolean d2Even = Util.isEven(d2.getNumber());
+		Direction d3 = d2;
 
-		if((d1Even && d2Even) || (!d1Even && !d2Even))
-			return null;
+		d2 = w1 > w2 ? d1 : d2;
+		d1 = w1 > w2 ? d3 : d1;
 
-		if(d1.getNumber() > d2.getNumber()){
-			Direction d3 = d1;
-			d1 = d2;
-			d2 = d3;
-		}
-
-		Region r1 = regions.get(d1);
-		Region r2 = regions.get(d2);
+		Region r1 = getRegion(d1), r2 = getRegion(d2);
 
 		return new Region(null, r1.getMin(), r2.getMax());
 	}

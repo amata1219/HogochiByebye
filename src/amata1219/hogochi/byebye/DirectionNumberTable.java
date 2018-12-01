@@ -1,6 +1,7 @@
 package amata1219.hogochi.byebye;
 
 import java.util.HashMap;
+import java.util.Map.Entry;
 
 public class DirectionNumberTable {
 
@@ -70,8 +71,26 @@ public class DirectionNumberTable {
 		return numbers.get(slotNumber);
 	}
 
+	public int getSlotNumber(int number){
+		for(Entry<Integer, Integer> entry : numbers.entrySet()){
+			if(number == entry.getValue())
+				return entry.getKey();
+		}
+
+		return -1;
+	}
+
 	public Direction getDirection(int slotNumber){
 		return directions.get(slotNumber);
+	}
+
+	public int getSlotNumber(Direction direction){
+		for(Entry<Integer, Direction> entry : directions.entrySet()){
+			if(direction == entry.getValue())
+				return entry.getKey();
+		}
+
+		return -1;
 	}
 
 }

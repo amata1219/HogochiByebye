@@ -1,16 +1,11 @@
 package amata1219.hogochi.byebye;
 
 import java.util.HashMap;
-import java.util.Map;
-
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 
-import com.sk89q.worldedit.BlockVector;
-import com.sk89q.worldguard.domains.DefaultDomain;
-import com.sk89q.worldguard.protection.flags.Flag;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
 public class RegionByebye {
@@ -61,92 +56,83 @@ public class RegionByebye {
 		rb.sales.remove(region.getId());
 	}
 
-	public static ProtectedRegion combineRegions(Player player, ProtectedRegion pr1, ProtectedRegion pr2){
-		BlockVector minVector = pr1.getMinimumPoint();
-		BlockVector maxVector = pr2.getMaximumPoint();
+	public static ProtectedRegion combineRegions(ProtectedRegion pr1, ProtectedRegion pr2){
+		System.out.println(pr1.getId() + ":");
+		System.out.println("min:(" + pr1.getMinimumPoint().getBlockX() + ", " + pr1.getMinimumPoint().getBlockZ() + "), max:("
+				+ pr1.getMaximumPoint().getBlockX() + ", " + pr1.getMaximumPoint().getBlockZ() + ")");
+		System.out.println(pr2.getId() + ":");
+		System.out.println("min:(" + pr2.getMinimumPoint().getBlockX() + ", " + pr2.getMinimumPoint().getBlockZ() + "), max:("
+				+ pr2.getMaximumPoint().getBlockX() + ", " + pr2.getMaximumPoint().getBlockZ() + ")");
 
-		Compartment cpm = new Compartment(minVector.getBlockX(), minVector.getBlockZ());
+		Compartment cpm = new Compartment(pr1);
 
-		Region r1 = cpm.getRegion(minVector.getBlockX(), minVector.getBlockZ());
-		Region r2 = cpm.getRegion(maxVector.getBlockX(), maxVector.getBlockZ());
+		ProtectedRegion region = null;
 
-		Region region = cpm.combine(r1.getDirection(), r2.getDirection());
-		if(region == null)
-			return null;
+		if((is25x50(pr1) && is25x50(pr2)) || (is50x25(pr1) && is50x25(pr2)))
+			region = Util.createProtectedRegion(IdType.USER, cpm.getMin(), cpm.getMax());
+		else
+			region = Util.createProtectedRegion(IdType.USER, cpm.combine(cpm.getDirections(pr1).get(0), cpm.getDirections(pr2).get(0)));
 
-		DefaultDomain members = pr1.getMembers();
-		Map<Flag<?>, Object> flags = pr1.getFlags();
+		region.setOwners(pr1.getOwners());
+		region.setMembers(pr1.getMembers());
+		region.setFlags(pr1.getFlags());
 
-		Util.removeProtectedRegion(pr1);
-		Util.removeProtectedRegion(pr2);
+		Util.removeProtectedRegion(pr1, pr2);
 
-		ProtectedRegion protectedRegion = Util.createProtectedRegion(IdType.USER, region);
-
-		protectedRegion.getOwners().addPlayer(player.getUniqueId());
-
-		protectedRegion.setMembers(members);
-		protectedRegion.setFlags(flags);
-
-		return protectedRegion;
+		return region;
 	}
 
-	public static ProtectedRegion[] splitLargeRegion(Player player, ProtectedRegion pr, boolean alongX){
-		BlockVector minVector = pr.getMinimumPoint();
-
-		Compartment cpm = new Compartment(minVector.getBlockX(), minVector.getBlockZ());
+	public static ProtectedRegion[] splitLargeRegion(ProtectedRegion pr, boolean alongX){
+		if(!is50x50(pr))
+			return null;
 
 		ProtectedRegion[] regions = new ProtectedRegion[2];
 
-		if(alongX){
-			regions[0] = Util.createProtectedRegion(IdType.USER, cpm.getRegion(Direction.SOUTH_WEST).getMin(), cpm.getRegion(Direction.NORTH_WEST).getMax());
-			regions[1] = Util.createProtectedRegion(IdType.USER, cpm.getRegion(Direction.SOUTH_EAST).getMin(), cpm.getRegion(Direction.NORTH_EAST).getMax());
-		}else{
-			regions[0] = Util.createProtectedRegion(IdType.USER, cpm.getRegion(Direction.NORTH_WEST).getMin(), cpm.getRegion(Direction.NORTH_EAST).getMax());
-			regions[1] = Util.createProtectedRegion(IdType.USER, cpm.getRegion(Direction.SOUTH_WEST).getMin(), cpm.getRegion(Direction.SOUTH_EAST).getMax());
-		}
+		Compartment cpm = new Compartment(pr);
+		DirectionNumberTable table = cpm.getDirectionNumberTable();
+
+		Region r1 = alongX ? cpm.combine(table.getDirection(5), table.getDirection(6)) : cpm.combine(table.getDirection(5), table.getDirection(14));
+		Region r2 = alongX ? cpm.combine(table.getDirection(14), table.getDirection(15)) : cpm.combine(table.getDirection(6), table.getDirection(15));
+
+		regions[0] = Util.createProtectedRegion(IdType.USER, r1);
+		regions[1] = Util.createProtectedRegion(IdType.USER, r2);
+
+		regions[0].setOwners(pr.getOwners());
+		regions[1].setOwners(pr.getOwners());;
+		regions[0].setMembers(pr.getMembers());
+		regions[1].setMembers(pr.getMembers());
+		regions[0].setFlags(pr.getFlags());
+		regions[1].setFlags(pr.getFlags());
 
 		Util.removeProtectedRegion(pr);
-
-		regions[0].getOwners().addPlayer(player.getUniqueId());
-		regions[0].setMembers(pr.getMembers());
-		regions[0].setFlags(pr.getFlags());
-
-		regions[1].getOwners().addPlayer(player.getUniqueId());
-		regions[1].setMembers(pr.getMembers());
-		regions[1].setFlags(pr.getFlags());
 
 		return regions;
 	}
 
-	public static ProtectedRegion[] splitSmallRegion(Player player, ProtectedRegion pr, boolean adminRegion){
-		BlockVector minVector = pr.getMinimumPoint();
-		BlockVector maxVector = pr.getMaximumPoint();
+	public static ProtectedRegion[] splitSmallRegion(ProtectedRegion pr, boolean adminRegion){
+		if(is25x25(pr) || is50x50(pr))
+			return null;
 
-		System.out.println("SPLIT: " + minVector.getBlockX() + ", " + minVector.getBlockZ() + ", " + maxVector.getBlockX() + ", " + maxVector.getBlockZ());
+		Compartment cpm = new Compartment(pr);
 
-		Compartment cpm = new Compartment(minVector.getBlockX(), minVector.getBlockZ());
+		ProtectedRegion[] regions = new ProtectedRegion[]{};
 
-		Region r1 = cpm.getRegion(minVector.getBlockX(), minVector.getBlockZ());
-		System.out.println("R1: " + r1.getMin().getX() + ", " + r1.getMin().getZ() + ", " + r1.getMax().getX() + ", " + r1.getMax().getZ());
-		Region r2 = cpm.getRegion(maxVector.getBlockX(), maxVector.getBlockZ());
-		System.out.println("R2: " + r2.getMin().getX() + ", " + r2.getMin().getZ() + ", " + r2.getMax().getX() + ", " + r2.getMax().getZ());
+		for(Direction direction : cpm.getDirections(pr)){
+			ProtectedRegion r = Util.createProtectedRegion(adminRegion ? IdType.ADMIN : IdType.USER, cpm.getRegion(direction));
 
-		DefaultDomain members = pr.getMembers();
-		Map<Flag<?>, Object> flags = pr.getFlags();
+			if(!adminRegion){
+				r.setOwners(pr.getOwners());
+				r.setMembers(pr.getMembers());
+				r.setFlags(pr.getFlags());
+			}
+
+			if(regions[0] == null)
+				regions[0] = r;
+			else
+				regions[1] = r;
+		}
 
 		Util.removeProtectedRegion(pr);
-
-		ProtectedRegion[] regions = new ProtectedRegion[2];
-
-		regions[0] = Util.createProtectedRegion(adminRegion ? IdType.ADMIN : IdType.USER, r1);
-		regions[0].getOwners().addPlayer(player.getUniqueId());
-		regions[0].setMembers(members);
-		regions[0].setFlags(flags);
-
-		regions[1] = Util.createProtectedRegion(adminRegion ? IdType.ADMIN : IdType.USER, r2);
-		regions[1].getOwners().addPlayer(player.getUniqueId());
-		regions[1].setMembers(members);
-		regions[1].setFlags(flags);
 
 		return regions;
 	}
@@ -249,45 +235,6 @@ public class RegionByebye {
 
 	public static boolean isAdminRegion(ProtectedRegion region){
 		return region.getId().startsWith(IdType.ADMIN.getString());
-	}
-
-	public static Direction[] getDirections(ProtectedRegion region){
-		if(is50x50(region))
-			return Direction.values();
-
-		int x = region.getMinimumPoint().getBlockX();
-		int z = region.getMinimumPoint().getBlockZ();
-
-		System.out.println(region.getMinimumPoint().getBlockX() + ", " +  region.getMinimumPoint().getBlockZ());
-
-		Compartment cpm = new Compartment(region);
-
-		if(is25x25(region))
-			return new Direction[]{cpm.getRegion(x, z).getDirection()};
-
-		Direction direction = cpm.getRegion(x, z).getDirection();
-
-		if(is25x50(region)){
-			if(direction == Direction.SOUTH_WEST)
-				return new Direction[]{Direction.SOUTH_WEST, Direction.NORTH_WEST};
-			else if(direction == Direction.NORTH_WEST)
-				return new Direction[]{Direction.NORTH_WEST, Direction.SOUTH_WEST};
-			else if(direction == Direction.SOUTH_EAST)
-				return new Direction[]{Direction.SOUTH_EAST, Direction.NORTH_EAST};
-			else
-				return new Direction[]{Direction.NORTH_EAST, Direction.SOUTH_EAST};
-		}else if(is50x25(region)){
-			if(direction == Direction.SOUTH_WEST)
-				return new Direction[]{Direction.SOUTH_WEST, Direction.SOUTH_EAST};
-			else if(direction == Direction.SOUTH_EAST)
-				return new Direction[]{Direction.SOUTH_EAST, Direction.SOUTH_WEST};
-			else if(direction == Direction.NORTH_WEST)
-				return new Direction[]{Direction.NORTH_WEST, Direction.NORTH_EAST};
-			else
-				return new Direction[]{Direction.NORTH_EAST, Direction.NORTH_WEST};
-		}
-
-		return new Direction[]{};
 	}
 
 }

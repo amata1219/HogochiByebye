@@ -67,22 +67,7 @@ public class Util {
 		return BlockVector.toBlockPoint(p.getX(), isMax ? 255 : 0, p.getZ());
 	}
 
-	public static Direction toDirection(int n){
-		switch(n){
-		case 1:
-			return Direction.SOUTH_WEST;
-		case 2:
-			return Direction.SOUTH_EAST;
-		case 3:
-			return Direction.NORTH_WEST;
-		case 4:
-			return Direction.NORTH_EAST;
-		default:
-			return null;
-		}
-	}
-
-	public static Direction toDirection(int x, int z){
+	public static Direction toMainDirection(int x, int z){
 		boolean minusX = isUnderZero(x), minusZ = isUnderZero(z);
 
 		if(!minusX && !minusZ)
@@ -141,7 +126,7 @@ public class Util {
 		maxX = Util.applyMinus(sortedX[1], minusMaxX);
 		maxZ = Util.applyMinus(sortedZ[1], minusMaxZ);
 
-		System.out.println("CREATE REGION: " + minX + ", " + minZ + ", " + maxX + ", " + maxZ + ", " + direction.name());
+		System.out.println("CR: " + direction.name() + "(min: (" + minX + ", " + minZ + "), max: (" + maxX + ", " + maxZ + "))");
 
 		return new Region(direction, minX, minZ, maxX, maxZ);
 	}
@@ -157,8 +142,9 @@ public class Util {
 		return region;
 	}
 
-	public static void removeProtectedRegion(ProtectedRegion region){
-		removeProtectedRegion(region.getId());
+	public static void removeProtectedRegion(ProtectedRegion... regions){
+		for(ProtectedRegion region : regions)
+			removeProtectedRegion(region.getId());
 	}
 
 	public static void removeProtectedRegion(String id){
