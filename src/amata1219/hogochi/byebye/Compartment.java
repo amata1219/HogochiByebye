@@ -150,8 +150,6 @@ public class Compartment {
 	}
 
 	public Region combine(Direction d1, Direction d2){
-		System.out.println(d1.name() + " : " + d2.name());
-
 		int w1 = d1.getNumber(), w2 = d2.getNumber();
 
 		if(d1 == d2 || Util.isEven(w1) == Util.isEven(w2))

@@ -1,11 +1,19 @@
 package amata1219.hogochi.byebye;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 
+import com.boydti.fawe.object.schematic.Schematic;
+import com.sk89q.worldedit.Vector;
+import com.sk89q.worldedit.bukkit.BukkitWorld;
+import com.sk89q.worldedit.extent.clipboard.io.ClipboardFormat;
+import com.sk89q.worldedit.math.transform.AffineTransform;
+import com.sk89q.worldedit.math.transform.Transform;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
 public class RegionByebye {
@@ -13,6 +21,7 @@ public class RegionByebye {
 	private static RegionByebye rb;
 
 	private HashMap<String, Long> sales = new HashMap<>();
+	private Schematic flat;
 
 	private RegionByebye(){
 
@@ -28,12 +37,18 @@ public class RegionByebye {
 			return;
 
 		section.getKeys(false).forEach(id -> rb.sales.put(id, plugin.getConfig().getLong("Regions." + id)));
+
+		try {
+			rb.flat = ClipboardFormat.SCHEMATIC.load(new File(HogochiByebye.getPlugin().getDataFolder() + File.separator + "flat.schematic"));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public static void save(){
 		HogochiByebye plugin = HogochiByebye.getPlugin();
 
-		rb.sales.forEach((k, v) -> plugin.getConfig().set("Regions." + k, String.valueOf(v)));
+		rb.sales.forEach((k, v) -> plugin.getConfig().set("Regions." + k, v));
 
 		plugin.saveConfig();
 		plugin.reloadConfig();
@@ -94,6 +109,11 @@ public class RegionByebye {
 		Region r1 = alongX ? cpm.combine(table.getDirection(5), table.getDirection(6)) : cpm.combine(table.getDirection(5), table.getDirection(14));
 		Region r2 = alongX ? cpm.combine(table.getDirection(14), table.getDirection(15)) : cpm.combine(table.getDirection(6), table.getDirection(15));
 
+		Point min1 = r1.getMin(), max1 = r1.getMax();
+		System.out.println("min:(" + min1.getX() + ", " + min1.getZ() + "), max:(" + max1.getX() + ", " + max1.getZ() + ")");
+		Point min2 = r2.getMin(), max2 = r2.getMax();
+		System.out.println("min:(" + min2.getX() + ", " + min2.getZ() + "), max:(" + max2.getX() + ", " + max2.getZ() + ")");
+
 		regions[0] = Util.createProtectedRegion(IdType.USER, r1);
 		regions[1] = Util.createProtectedRegion(IdType.USER, r2);
 
@@ -115,9 +135,13 @@ public class RegionByebye {
 
 		Compartment cpm = new Compartment(pr);
 
-		ProtectedRegion[] regions = new ProtectedRegion[]{};
+		ProtectedRegion[] regions = new ProtectedRegion[2];
 
 		for(Direction direction : cpm.getDirections(pr)){
+			System.out.println("DirectionCheck: " + direction.name());
+			Region region = cpm.getRegion(direction);
+			Point min = region.getMin(), max = region.getMax();
+			System.out.println("min:(" + min.getX() + ", " + min.getZ() + "), max:(" + max.getX() + ", " + max.getZ() + ")");
 			ProtectedRegion r = Util.createProtectedRegion(adminRegion ? IdType.ADMIN : IdType.USER, cpm.getRegion(direction));
 
 			if(!adminRegion){
@@ -135,6 +159,36 @@ public class RegionByebye {
 		Util.removeProtectedRegion(pr);
 
 		return regions;
+	}
+
+	public static void flatten(ProtectedRegion pr){
+		if(!is25x25(pr))
+			return;
+
+		Compartment cpm = new Compartment(pr);
+
+		/*AffineTransform transform = new AffineTransform();
+
+		switch(cpm.getDirectionNumberTable().getMainDirection()){
+		case NORTH_EAST:
+			break;
+		case NORTH_WEST:
+			transform.rotateX(270);
+			break;
+		case SOUTH_EAST:
+			transform.rotateX(90);
+			break;
+		case SOUTH_WEST:
+			transform.rotateX(180);
+			break;
+		default:
+			return;
+		}*/
+
+		Point min = cpm.getRegion(cpm.getDirections(pr).get(0)).getMin();
+
+		rb.flat.paste(new BukkitWorld(Bukkit.getWorld("main_flat")), new Vector(min.getX(), 255, min.getZ()), false, true, (Transform) null);
+		//rb.flat.paste(new BukkitWorld(Bukkit.getWorld("main_flat")), new Vector(min.getX(), 255, min.getZ()), false, true, transform);
 	}
 
 	public static boolean isExistProtectedRegion(int x, int z){

@@ -126,8 +126,6 @@ public class Util {
 		maxX = Util.applyMinus(sortedX[1], minusMaxX);
 		maxZ = Util.applyMinus(sortedZ[1], minusMaxZ);
 
-		System.out.println("CR: " + direction.name() + "(min: (" + minX + ", " + minZ + "), max: (" + maxX + ", " + maxZ + "))");
-
 		return new Region(direction, minX, minZ, maxX, maxZ);
 	}
 

@@ -34,7 +34,7 @@ public class ClaimByebye {
 	public static void save(){
 		HogochiByebye plugin = HogochiByebye.getPlugin();
 
-		cb.sales.forEach((k, v) -> plugin.getConfig().set("Claims." + k, String.valueOf(v)));
+		cb.sales.forEach((k, v) -> plugin.getConfig().set("Claims." + k, v));
 
 		plugin.saveConfig();
 		plugin.reloadConfig();
