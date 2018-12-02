@@ -122,6 +122,7 @@ public class Compartment {
 
 		for(Direction direction : Direction.values()){
 			Region region = getRegion(direction);
+
 			if(!region.isProtected())
 				continue;
 

@@ -83,7 +83,6 @@ public class HogochiByebye extends JavaPlugin implements CommandExecutor {
 			Compartment cpm = new Compartment(loc.getBlockX(), loc.getBlockZ());
 			for(Direction direction : Direction.values()){
 				Region region = cpm.getRegion(direction);
-				System.out.println("REGION: " + region.getMin().getX() + ", " + region.getMin().getZ() + ", " + region.getMax().getX() + ", " + region.getMax().getZ());
 				player.sendBlockChange(new Location(Bukkit.getWorld("main_flat"), region.getMin().getX(), 62, region.getMin().getZ()), Material.GOLD_BLOCK, (byte) 0);
 				player.sendBlockChange(new Location(Bukkit.getWorld("main_flat"), region.getMax().getX(), 62, region.getMax().getZ()), Material.GOLD_BLOCK, (byte) 0);
 

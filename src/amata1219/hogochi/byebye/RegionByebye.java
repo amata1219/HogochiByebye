@@ -12,7 +12,6 @@ import com.boydti.fawe.object.schematic.Schematic;
 import com.sk89q.worldedit.Vector;
 import com.sk89q.worldedit.bukkit.BukkitWorld;
 import com.sk89q.worldedit.extent.clipboard.io.ClipboardFormat;
-import com.sk89q.worldedit.math.transform.AffineTransform;
 import com.sk89q.worldedit.math.transform.Transform;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
@@ -21,7 +20,7 @@ public class RegionByebye {
 	private static RegionByebye rb;
 
 	private HashMap<String, Long> sales = new HashMap<>();
-	private Schematic flat;
+	private Schematic ne, se, sw, nw;
 
 	private RegionByebye(){
 
@@ -39,7 +38,10 @@ public class RegionByebye {
 		section.getKeys(false).forEach(id -> rb.sales.put(id, plugin.getConfig().getLong("Regions." + id)));
 
 		try {
-			rb.flat = ClipboardFormat.SCHEMATIC.load(new File(HogochiByebye.getPlugin().getDataFolder() + File.separator + "flat.schematic"));
+			rb.ne = ClipboardFormat.SCHEMATIC.load(new File(HogochiByebye.getPlugin().getDataFolder() + File.separator + "flat_ne.schematic"));
+			rb.se = ClipboardFormat.SCHEMATIC.load(new File(HogochiByebye.getPlugin().getDataFolder() + File.separator + "flat_se.schematic"));
+			rb.sw = ClipboardFormat.SCHEMATIC.load(new File(HogochiByebye.getPlugin().getDataFolder() + File.separator + "flat_sw.schematic"));
+			rb.nw = ClipboardFormat.SCHEMATIC.load(new File(HogochiByebye.getPlugin().getDataFolder() + File.separator + "flat_nw.schematic"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -72,13 +74,6 @@ public class RegionByebye {
 	}
 
 	public static ProtectedRegion combineRegions(ProtectedRegion pr1, ProtectedRegion pr2){
-		System.out.println(pr1.getId() + ":");
-		System.out.println("min:(" + pr1.getMinimumPoint().getBlockX() + ", " + pr1.getMinimumPoint().getBlockZ() + "), max:("
-				+ pr1.getMaximumPoint().getBlockX() + ", " + pr1.getMaximumPoint().getBlockZ() + ")");
-		System.out.println(pr2.getId() + ":");
-		System.out.println("min:(" + pr2.getMinimumPoint().getBlockX() + ", " + pr2.getMinimumPoint().getBlockZ() + "), max:("
-				+ pr2.getMaximumPoint().getBlockX() + ", " + pr2.getMaximumPoint().getBlockZ() + ")");
-
 		Compartment cpm = new Compartment(pr1);
 
 		ProtectedRegion region = null;
@@ -106,13 +101,8 @@ public class RegionByebye {
 		Compartment cpm = new Compartment(pr);
 		DirectionNumberTable table = cpm.getDirectionNumberTable();
 
-		Region r1 = alongX ? cpm.combine(table.getDirection(5), table.getDirection(6)) : cpm.combine(table.getDirection(5), table.getDirection(14));
-		Region r2 = alongX ? cpm.combine(table.getDirection(14), table.getDirection(15)) : cpm.combine(table.getDirection(6), table.getDirection(15));
-
-		Point min1 = r1.getMin(), max1 = r1.getMax();
-		System.out.println("min:(" + min1.getX() + ", " + min1.getZ() + "), max:(" + max1.getX() + ", " + max1.getZ() + ")");
-		Point min2 = r2.getMin(), max2 = r2.getMax();
-		System.out.println("min:(" + min2.getX() + ", " + min2.getZ() + "), max:(" + max2.getX() + ", " + max2.getZ() + ")");
+		Region r1 = alongX ? cpm.combine(table.getDirection(5), table.getDirection(14)) : cpm.combine(table.getDirection(5), table.getDirection(6));
+		Region r2 = alongX ? cpm.combine(table.getDirection(6), table.getDirection(15)) : cpm.combine(table.getDirection(14), table.getDirection(15));
 
 		regions[0] = Util.createProtectedRegion(IdType.USER, r1);
 		regions[1] = Util.createProtectedRegion(IdType.USER, r2);
@@ -138,11 +128,8 @@ public class RegionByebye {
 		ProtectedRegion[] regions = new ProtectedRegion[2];
 
 		for(Direction direction : cpm.getDirections(pr)){
-			System.out.println("DirectionCheck: " + direction.name());
 			Region region = cpm.getRegion(direction);
-			Point min = region.getMin(), max = region.getMax();
-			System.out.println("min:(" + min.getX() + ", " + min.getZ() + "), max:(" + max.getX() + ", " + max.getZ() + ")");
-			ProtectedRegion r = Util.createProtectedRegion(adminRegion ? IdType.ADMIN : IdType.USER, cpm.getRegion(direction));
+			ProtectedRegion r = Util.createProtectedRegion(adminRegion ? IdType.ADMIN : IdType.USER, region);
 
 			if(!adminRegion){
 				r.setOwners(pr.getOwners());
@@ -167,28 +154,27 @@ public class RegionByebye {
 
 		Compartment cpm = new Compartment(pr);
 
-		/*AffineTransform transform = new AffineTransform();
+		Point min = cpm.getRegion(cpm.getDirections(pr).get(0)).getMin();
 
 		switch(cpm.getDirectionNumberTable().getMainDirection()){
 		case NORTH_EAST:
+			rb.ne.paste(new BukkitWorld(Bukkit.getWorld("main_flat")), new Vector(min.getX(), 255, min.getZ()), false, true, (Transform) null);
 			break;
 		case NORTH_WEST:
-			transform.rotateX(270);
+			rb.nw.paste(new BukkitWorld(Bukkit.getWorld("main_flat")), new Vector(min.getX(), 255, min.getZ()), false, true, (Transform) null);
 			break;
 		case SOUTH_EAST:
-			transform.rotateX(90);
+			rb.se.paste(new BukkitWorld(Bukkit.getWorld("main_flat")), new Vector(min.getX(), 255, min.getZ()), false, true, (Transform) null);
 			break;
 		case SOUTH_WEST:
-			transform.rotateX(180);
+			rb.sw.paste(new BukkitWorld(Bukkit.getWorld("main_flat")), new Vector(min.getX(), 255, min.getZ()), false, true, (Transform) null);
 			break;
 		default:
-			return;
-		}*/
+			break;
+		}
 
-		Point min = cpm.getRegion(cpm.getDirections(pr).get(0)).getMin();
-
-		rb.flat.paste(new BukkitWorld(Bukkit.getWorld("main_flat")), new Vector(min.getX(), 255, min.getZ()), false, true, (Transform) null);
-		//rb.flat.paste(new BukkitWorld(Bukkit.getWorld("main_flat")), new Vector(min.getX(), 255, min.getZ()), false, true, transform);
+		//rb.flat.paste(new BukkitWorld(Bukkit.getWorld("main_flat")), new Vector(min.getX(), 255, min.getZ()), false, true, (Transform) null);
+		//1: bedrock, 2~61: dirt, 62: grass, 63~255: air
 	}
 
 	public static boolean isExistProtectedRegion(int x, int z){

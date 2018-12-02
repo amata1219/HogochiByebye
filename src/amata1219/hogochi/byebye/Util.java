@@ -104,7 +104,7 @@ public class Util {
 			minX = min.getAbsoluteX();
 			minZ = min.getAbsoluteZ() + REGION_ONE_SIDE;
 
-			maxX = max.getAbsoluteZ() - REGION_ONE_SIDE;
+			maxX = max.getAbsoluteX() - REGION_ONE_SIDE;
 			maxZ = max.getAbsoluteZ();
 			break;
 		case SOUTH_WEST:
