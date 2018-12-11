@@ -2,14 +2,18 @@ package amata1219.hogochi.byebye;
 
 import java.util.HashMap;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 
-import me.ryanhamshire.GriefPrevention.api.ClaimManager;
-import me.ryanhamshire.GriefPrevention.claims.Claim;
+import me.ryanhamshire.GriefPrevention.Claim;
+import me.ryanhamshire.GriefPrevention.DataStore.NoTransferException;
 
-public class ClaimByebye {
+public class ClaimByebye implements Listener{
 
 	private static ClaimByebye cb;
 
@@ -40,12 +44,38 @@ public class ClaimByebye {
 		plugin.reloadConfig();
 	}
 
-	public static ClaimManager getClaimManager(){
-		return HogochiByebye.getPlugin().getGriefPreventionX().getGriefPreventionXApi().getClaimManager();
+	@EventHandler
+	public void onDelete(PlayerCommandPreprocessEvent e){
+		if(e.isCancelled())
+			return;
+
+		Player player = e.getPlayer();
+		String message = e.getMessage();
+
+		if(message.startsWith("abandonclaim")){
+			Claim claim = ClaimByebye.getClaim(player.getLocation());
+			if(claim == null)
+				return;
+
+			if(!player.isOp() && player.getUniqueId().equals(claim.ownerID))
+				return;
+
+			Bukkit.getPluginManager().callEvent(new ClaimDeletedEvent(player, claim));
+			withdrawSale(ClaimByebye.getClaim(player.getLocation()));
+		}else if(message.startsWith("abandonallclaims")){
+			for(Claim claim : HogochiByebye.getPlugin().getGriefPrevention().dataStore.getPlayerData(player.getUniqueId()).getClaims()){
+				Bukkit.getPluginManager().callEvent(new ClaimDeletedEvent(player, claim));
+				withdrawSale(claim);
+			}
+		}
 	}
 
 	public static void buy(Player player, Claim claim) {
-		getClaimManager().sellClaim(claim, player, 0);
+		try {
+			HogochiByebye.getPlugin().getGriefPrevention().dataStore.changeClaimOwner(claim, player.getUniqueId());
+		} catch (NoTransferException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public static void sell(Claim claim, long price) {
@@ -57,15 +87,15 @@ public class ClaimByebye {
 	}
 
 	public static boolean isExistClaim(Location location) {
-		return getClaimManager().getClaimAt(location) != null;
+		return HogochiByebye.getPlugin().getGriefPrevention().dataStore.getClaimAt(location, true, null) != null;
 	}
 
 	public static Claim getClaim(Location location) {
-		return getClaimManager().getClaimAt(location);
+		return HogochiByebye.getPlugin().getGriefPrevention().dataStore.getClaimAt(location, true, null);
 	}
 
 	public static boolean isOwner(Player player, Claim claim) {
-		return claim.getOwnerUUID(true).equals(player.getUniqueId());
+		return claim.ownerID.equals(player.getUniqueId());
 	}
 
 	public static  boolean isBuyable(Claim claim) {

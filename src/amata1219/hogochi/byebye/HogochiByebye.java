@@ -1,3 +1,8 @@
+/*
+ * 本プラグインの著作権は、amata1219(Twitter@amata1219)に帰属します。
+ * また、本プラグインの二次配布、改変使用、自作発言を禁じます。
+ */
+
 package amata1219.hogochi.byebye;
 
 import org.bukkit.Bukkit;
@@ -17,14 +22,14 @@ import com.sk89q.worldedit.BlockVector;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
-import me.ryanhamshire.GriefPrevention.GriefPreventionX;
+import me.ryanhamshire.GriefPrevention.GriefPrevention;
 
 public class HogochiByebye extends JavaPlugin implements CommandExecutor {
 
 	private static HogochiByebye plugin;
 
 	private WorldGuardPlugin worldGuard;
-	private GriefPreventionX griefPreventionX;
+	private GriefPrevention griefPrevention;
 
 	private BukkitTask task;
 
@@ -39,11 +44,11 @@ public class HogochiByebye extends JavaPlugin implements CommandExecutor {
 
 		this.worldGuard = (WorldGuardPlugin) worldGuard;
 
-		Plugin griefPreventionX = getServer().getPluginManager().getPlugin("GriefPreventionX");
-		if(griefPreventionX == null)
-			throw new NullPointerException("[HogochiByebye] GriefPreventionX is not exist!");
+		Plugin griefPrevention = getServer().getPluginManager().getPlugin("GriefPrevention");
+		if(griefPrevention == null)
+			throw new NullPointerException("[HogochiByebye] GriefPrevention is not exist!");
 
-		this.griefPreventionX = (GriefPreventionX) griefPreventionX;
+		this.griefPrevention = (GriefPrevention) griefPrevention;
 
 		RegionByebye.load();
 		ClaimByebye.load();
@@ -158,8 +163,8 @@ public class HogochiByebye extends JavaPlugin implements CommandExecutor {
 		return worldGuard;
 	}
 
-	public GriefPreventionX getGriefPreventionX(){
-		return griefPreventionX;
+	public GriefPrevention getGriefPrevention(){
+		return griefPrevention;
 	}
 
 }
