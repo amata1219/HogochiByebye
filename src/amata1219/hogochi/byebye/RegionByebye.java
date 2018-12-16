@@ -259,7 +259,7 @@ public class RegionByebye {
 		return rb.sales.get(region.getId());
 	}
 
-	public static long getNeedTickets(ProtectedRegion region){
+	public static int getNeedTickets(ProtectedRegion region){
 		if(!isAdminRegion(region))
 			return -1;
 
