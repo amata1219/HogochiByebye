@@ -13,7 +13,7 @@ import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import me.ryanhamshire.GriefPrevention.Claim;
 import me.ryanhamshire.GriefPrevention.DataStore.NoTransferException;
 
-public class ClaimByebye implements Listener{
+public class ClaimByebye implements Listener {
 
 	private static ClaimByebye cb;
 

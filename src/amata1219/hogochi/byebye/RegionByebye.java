@@ -19,6 +19,8 @@ public class RegionByebye {
 
 	private static RegionByebye rb;
 
+	public static final int STONE = 250;
+
 	private HashMap<String, Long> sales = new HashMap<>();
 	private Schematic ne, se, sw, nw;
 
@@ -260,17 +262,17 @@ public class RegionByebye {
 	}
 
 	public static int getNeedTickets(ProtectedRegion region){
-		if(!isAdminRegion(region))
-			return -1;
+		if(isAdminRegion(region))
+			return 0;
 
-		int i = 160;
+		int i = STONE;
 
 		if(is25x50(region) || is50x25(region))
 			return i * 2;
 		else if(is50x50(region))
 			return i * 4;
-
-		return i;
+		else
+			return i;
 	}
 
 	public static boolean isAdminRegion(ProtectedRegion region){

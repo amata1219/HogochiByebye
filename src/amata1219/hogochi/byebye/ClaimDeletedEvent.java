@@ -8,7 +8,7 @@ import me.ryanhamshire.GriefPrevention.Claim;
 
 public class ClaimDeletedEvent extends Event {
 
-	private static HandlerList handlers;
+	private static final HandlerList handlers = new HandlerList();
 
 	private Player player;
 	private Claim claim;
