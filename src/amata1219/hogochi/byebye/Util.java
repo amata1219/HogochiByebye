@@ -2,10 +2,20 @@ package amata1219.hogochi.byebye;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.World;
+import org.bukkit.craftbukkit.v1_12_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_12_R1.util.CraftMagicNumbers;
+import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import com.sk89q.worldedit.BlockVector;
 import com.sk89q.worldguard.protection.regions.ProtectedCuboidRegion;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
+
+import net.minecraft.server.v1_12_R1.BlockPosition;
+import net.minecraft.server.v1_12_R1.PacketPlayOutBlockChange;
 
 public class Util {
 
@@ -65,6 +75,10 @@ public class Util {
 
 	public static BlockVector toBlockVector(Point p, boolean isMax){
 		return BlockVector.toBlockPoint(p.getX(), isMax ? 255 : 0, p.getZ());
+	}
+
+	public static Point toPoint(BlockVector vector){
+		return new Point(vector.getBlockX(), vector.getBlockZ());
 	}
 
 	public static Direction toMainDirection(int x, int z){
@@ -127,6 +141,40 @@ public class Util {
 		maxZ = Util.applyMinus(sortedZ[1], minusMaxZ);
 
 		return new Region(direction, minX, minZ, maxX, maxZ);
+	}
+
+	public static void displayRegion(Player player, Direction direction, Point min, Point max){
+		HogochiByebye plugin = HogochiByebye.getPlugin();
+		World world = Bukkit.getWorld("main_flat");
+
+		final int y1 = world.getHighestBlockYAt(min.getX(), min.getZ());
+
+		displayBlock(player, Material.DIAMOND_BLOCK, min.getX(), y1, min.getZ());
+
+		new BukkitRunnable(){
+			@Override
+			public void run(){
+				displayBlock(player, Material.GRASS, min.getX(), y1, min.getZ());
+			}
+		}.runTaskLater(plugin, 1200L);
+
+		final int y2 = world.getHighestBlockYAt(max.getX(), max.getZ());
+
+		displayBlock(player, Material.DIAMOND_BLOCK, max.getX(), y2, max.getZ());
+
+		new BukkitRunnable(){
+			@Override
+			public void run(){
+				displayBlock(player, Material.GRASS, max.getX(), y2, max.getZ());
+			}
+		}.runTaskLater(plugin, 1200L);
+	}
+
+	@SuppressWarnings("deprecation")
+	public static void displayBlock(Player player, Material material, int x, int y, int z){
+		PacketPlayOutBlockChange packet = new PacketPlayOutBlockChange(((CraftWorld) Bukkit.getWorld("main_flat")).getHandle(), new BlockPosition(x, y, z));
+		packet.block = CraftMagicNumbers.getBlock(material).fromLegacyData(0);
+		((CraftPlayer) player).getHandle().playerConnection.sendPacket(packet);
 	}
 
 	public static ProtectedRegion createProtectedRegion(IdType id, Region r){

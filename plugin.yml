@@ -1,7 +1,7 @@
 name: HogochiByebye
 main: amata1219.hogochi.byebye.HogochiByebye
 version: 1.0.0
-depend: [WorldEdit,WorldGuard,FastAsyncWorldEdit,GriefPrevention]
+depend: [HyperingEconomy, WorldEdit,WorldGuard,FastAsyncWorldEdit,GriefPrevention]
 author: amata1219(Twitter@amata1219)
 
 commands:

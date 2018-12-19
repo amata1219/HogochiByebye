@@ -52,7 +52,7 @@ public class ClaimByebye implements Listener {
 		Player player = e.getPlayer();
 		String message = e.getMessage();
 
-		if(message.startsWith("abandonclaim")){
+		if(message.startsWith("abandonclaim") || message.startsWith("deleteclaim")){
 			Claim claim = ClaimByebye.getClaim(player.getLocation());
 			if(claim == null)
 				return;
@@ -62,7 +62,7 @@ public class ClaimByebye implements Listener {
 
 			Bukkit.getPluginManager().callEvent(new ClaimDeletedEvent(player, claim));
 			withdrawSale(ClaimByebye.getClaim(player.getLocation()));
-		}else if(message.startsWith("abandonallclaims")){
+		}else if(message.startsWith("abandonallclaims") || message.startsWith("deleteallclaims")){
 			for(Claim claim : HogochiByebye.getPlugin().getGriefPrevention().dataStore.getPlayerData(player.getUniqueId()).getClaims()){
 				Bukkit.getPluginManager().callEvent(new ClaimDeletedEvent(player, claim));
 				withdrawSale(claim);
