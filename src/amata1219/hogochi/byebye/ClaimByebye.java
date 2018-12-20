@@ -2,18 +2,13 @@ package amata1219.hogochi.byebye;
 
 import java.util.HashMap;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerCommandPreprocessEvent;
-
 import me.ryanhamshire.GriefPrevention.Claim;
 import me.ryanhamshire.GriefPrevention.DataStore.NoTransferException;
 
-public class ClaimByebye implements Listener {
+public class ClaimByebye {
 
 	private static ClaimByebye cb;
 
@@ -42,32 +37,6 @@ public class ClaimByebye implements Listener {
 
 		plugin.saveConfig();
 		plugin.reloadConfig();
-	}
-
-	@EventHandler
-	public void onDelete(PlayerCommandPreprocessEvent e){
-		if(e.isCancelled())
-			return;
-
-		Player player = e.getPlayer();
-		String message = e.getMessage();
-
-		if(message.startsWith("abandonclaim") || message.startsWith("deleteclaim")){
-			Claim claim = ClaimByebye.getClaim(player.getLocation());
-			if(claim == null)
-				return;
-
-			if(!player.isOp() && player.getUniqueId().equals(claim.ownerID))
-				return;
-
-			Bukkit.getPluginManager().callEvent(new ClaimDeletedEvent(player, claim));
-			withdrawSale(ClaimByebye.getClaim(player.getLocation()));
-		}else if(message.startsWith("abandonallclaims") || message.startsWith("deleteallclaims")){
-			for(Claim claim : HogochiByebye.getPlugin().getGriefPrevention().dataStore.getPlayerData(player.getUniqueId()).getClaims()){
-				Bukkit.getPluginManager().callEvent(new ClaimDeletedEvent(player, claim));
-				withdrawSale(claim);
-			}
-		}
 	}
 
 	public static void buy(Player player, Claim claim) {

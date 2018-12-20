@@ -2,22 +2,11 @@ package amata1219.hogochi.byebye;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.HashMap;
-import java.util.UUID;
-
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.block.Action;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.inventory.EquipmentSlot;
-
 import com.boydti.fawe.object.schematic.Schematic;
 import com.sk89q.worldedit.Vector;
 import com.sk89q.worldedit.bukkit.BukkitWorld;
@@ -25,9 +14,7 @@ import com.sk89q.worldedit.extent.clipboard.io.ClipboardFormat;
 import com.sk89q.worldedit.math.transform.Transform;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
-import amata1219.hypering.economy.Database;
-
-public class RegionByebye implements Listener {
+public class RegionByebye {
 
 	private static RegionByebye rb;
 
@@ -59,8 +46,6 @@ public class RegionByebye implements Listener {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-
-		plugin.getServer().getPluginManager().registerEvents(rb, plugin);
 	}
 
 	public static void save(){
@@ -74,55 +59,6 @@ public class RegionByebye implements Listener {
 
 	public static RegionByebye getInstance(){
 		return rb;
-	}
-
-	@EventHandler
-	public void onInteract(PlayerInteractEvent e){
-		if(e.getAction() != Action.RIGHT_CLICK_BLOCK)
-			return;
-
-		if(e.getHand() != EquipmentSlot.HAND)
-			return;
-
-		if(e.getItem() == null || e.getItem().getType() != Material.STICK)
-			return;
-
-		Player player = e.getPlayer();
-		if(!player.getWorld().getName().equals("main_flat"))
-			return;
-
-		if(e.getClickedBlock() == null)
-			return;
-
-		Location loc = e.getClickedBlock().getLocation();
-		Compartment cpm = new Compartment(loc.getBlockX(), loc.getBlockZ());
-		Region rg = cpm.getRegion(loc.getBlockX(), loc.getBlockZ());
-		if(!rg.isProtected())
-			return;
-
-		switch(cpm.getDirectionNumberTable().getMainDirection()){
-
-		}
-
-		ProtectedRegion pr = rg.getProtectedRegion();
-		if(pr == null)
-			return;
-
-		if(pr.getId().startsWith(IdType.ADMIN.getString())){
-			player.sendMessage(ChatColor.AQUA + "That block has been protected by an administrator.");
-			player.sendMessage(ChatColor.AQUA + "  25x25=625");//1250, 2500
-			player.sendMessage(ChatColor.AQUA + "  Need tickets: " + STONE);
-		}else{
-			UUID uuid = pr.getOwners().getUniqueIds().iterator().next();
-
-			player.sendMessage(ChatColor.AQUA + "That block has been protected by " + Bukkit.getOfflinePlayer(uuid).getName() + ".");
-			player.sendMessage(ChatColor.AQUA + "  " + (is25x25(pr) ? "25x25=625" : (is50x50(pr) ? "50x50=2500" : (is25x50(pr) ? "25x50=1250" : "50x25=1250"))));
-			player.sendMessage(ChatColor.AQUA + "  Last login: " + (new SimpleDateFormat("dd").format(System.currentTimeMillis() - Database.getHyperingEconomyAPI().getLastPlayed(uuid))) + " days ago.");
-
-			if(isBuyable(pr))
-				player.sendMessage(ChatColor.AQUA + "  Need money: ¥" + getPrice(pr));
-		}
-
 	}
 
 	public static void buy(Player player, ProtectedRegion region){

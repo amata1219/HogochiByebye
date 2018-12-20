@@ -3,19 +3,13 @@ package amata1219.hogochi.byebye;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.World;
-import org.bukkit.craftbukkit.v1_12_R1.CraftWorld;
-import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_12_R1.util.CraftMagicNumbers;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import com.sk89q.worldedit.BlockVector;
 import com.sk89q.worldguard.protection.regions.ProtectedCuboidRegion;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
-
-import net.minecraft.server.v1_12_R1.BlockPosition;
-import net.minecraft.server.v1_12_R1.PacketPlayOutBlockChange;
 
 public class Util {
 
@@ -143,40 +137,6 @@ public class Util {
 		return new Region(direction, minX, minZ, maxX, maxZ);
 	}
 
-	public static void displayRegion(Player player, Direction direction, Point min, Point max){
-		HogochiByebye plugin = HogochiByebye.getPlugin();
-		World world = Bukkit.getWorld("main_flat");
-
-		final int y1 = world.getHighestBlockYAt(min.getX(), min.getZ());
-
-		displayBlock(player, Material.DIAMOND_BLOCK, min.getX(), y1, min.getZ());
-
-		new BukkitRunnable(){
-			@Override
-			public void run(){
-				displayBlock(player, Material.GRASS, min.getX(), y1, min.getZ());
-			}
-		}.runTaskLater(plugin, 1200L);
-
-		final int y2 = world.getHighestBlockYAt(max.getX(), max.getZ());
-
-		displayBlock(player, Material.DIAMOND_BLOCK, max.getX(), y2, max.getZ());
-
-		new BukkitRunnable(){
-			@Override
-			public void run(){
-				displayBlock(player, Material.GRASS, max.getX(), y2, max.getZ());
-			}
-		}.runTaskLater(plugin, 1200L);
-	}
-
-	@SuppressWarnings("deprecation")
-	public static void displayBlock(Player player, Material material, int x, int y, int z){
-		PacketPlayOutBlockChange packet = new PacketPlayOutBlockChange(((CraftWorld) Bukkit.getWorld("main_flat")).getHandle(), new BlockPosition(x, y, z));
-		packet.block = CraftMagicNumbers.getBlock(material).fromLegacyData(0);
-		((CraftPlayer) player).getHandle().playerConnection.sendPacket(packet);
-	}
-
 	public static ProtectedRegion createProtectedRegion(IdType id, Region r){
 		return createProtectedRegion(id, r.getMin(), r.getMax());
 	}
@@ -195,6 +155,22 @@ public class Util {
 
 	public static void removeProtectedRegion(String id){
 		HogochiByebye.getPlugin().getWorldGuardPlugin().getRegionManager(Bukkit.getWorld("main_flat")).removeRegion(id);
+	}
+
+	@SuppressWarnings("deprecation")
+	public static void displayPoint(Player player, Location loc){
+		final Location location = loc.clone();
+
+		player.sendBlockChange(location, Material.DIAMOND_BLOCK, (byte) 0);
+
+		new BukkitRunnable(){
+			@Override
+			public void run(){
+				Block block = location.getBlock();
+
+				player.sendBlockChange(loc, block.getType(), block.getData());
+			}
+		}.runTaskLater(HogochiByebye.getPlugin(), 1200L);
 	}
 
 }
