@@ -5,7 +5,6 @@ import java.lang.reflect.Method;
 
 import org.bukkit.entity.Player;
 
-import amata1219.hogochi.byebye.HogochiByebye;
 import io.netty.channel.Channel;
 
 public class PacketInjector {
@@ -21,7 +20,7 @@ public class PacketInjector {
 	private Class<?> PacketPlayOutChat;
 	private Class<?> IChatBaseComponent;
 	private Field a;
-	private Method getPlainText;
+	private Method toPlainText;
 
 	public PacketInjector() {
 		try{
@@ -35,7 +34,8 @@ public class PacketInjector {
 			PacketPlayOutChat = Reflection.getClass("{nms}.PacketPlayOutChat");
 			IChatBaseComponent = Reflection.getClass("{nms}.IChatBaseComponent");
 			a = Reflection.getField(PacketPlayOutChat, "a");
-			getPlainText = HogochiByebye.getInjector().getIChatBaseComponent().getMethod("getPlainText", String.class);
+			a.setAccessible(true);
+			toPlainText = IChatBaseComponent.getMethod("toPlainText");
 		}catch(Throwable t) {
 			t.printStackTrace();
 		}
@@ -49,8 +49,8 @@ public class PacketInjector {
 		return a;
 	}
 
-	public Method getPlainText(){
-		return getPlainText;
+	public Method toPlainText(){
+		return toPlainText;
 	}
 
 	public void addPlayer(Player p) {

@@ -78,11 +78,18 @@ public class HogochiByebye extends JavaPlugin implements Listener {
 
 		injector = new PacketInjector();
 
+		for(Player player : getServer().getOnlinePlayers())
+			injector.addPlayer(player);
+
 		getServer().getPluginManager().registerEvents(this, this);
 	}
 
 	@Override
 	public void onDisable(){
+
+		for(Player player : getServer().getOnlinePlayers())
+			injector.removePlayer(player);
+
 		task.cancel();
 
 		HandlerList.unregisterAll((JavaPlugin) this);
@@ -90,87 +97,6 @@ public class HogochiByebye extends JavaPlugin implements Listener {
 		RegionByebye.save();
 		ClaimByebye.save();
 	}
-
-	/*@SuppressWarnings("deprecation")
-	@Override
-	public boolean onCommand(CommandSender sender, Command command, String label, String[] args){
-		if(!(sender instanceof Player)){
-			sender.sendMessage(ChatColor.RED + "ゲーム内から実行して下さい。");
-			return true;
-		}
-
-		if(args.length == 0){
-			Player player = (Player) sender;
-			Location loc = player.getLocation();
-			Compartment cpm = new Compartment(loc.getBlockX(), loc.getBlockZ());
-			for(Direction direction : Direction.values()){
-				Region region = cpm.getRegion(direction);
-				player.sendBlockChange(new Location(Bukkit.getWorld("main_flat"), region.getMin().getX(), 62, region.getMin().getZ()), Material.GOLD_BLOCK, (byte) 0);
-				player.sendBlockChange(new Location(Bukkit.getWorld("main_flat"), region.getMax().getX(), 62, region.getMax().getZ()), Material.GOLD_BLOCK, (byte) 0);
-
-				new BukkitRunnable(){
-
-					@Override
-					public void run(){
-						player.sendBlockChange(new Location(Bukkit.getWorld("main_flat"), region.getMin().getX(), 62, region.getMin().getZ()), Material.GRASS, (byte) 0);
-						player.sendBlockChange(new Location(Bukkit.getWorld("main_flat"), region.getMax().getX(), 62,region.getMax().getZ()), Material.GRASS, (byte) 0);
-					}
-
-				}.runTaskLater(this, 300);
-			}
-
-			player.sendMessage(ChatColor.AQUA + "DISPLAY PROTECTED REGIONS");
-			return true;
-		}else if(args[0].equalsIgnoreCase("pr")){
-		Player player = (Player) sender;
-		Location loc = player.getLocation();
-		Compartment cpm = new Compartment(loc.getBlockX(), loc.getBlockZ());
-		for(Direction direction : Direction.values()){
-			Region region = cpm.getRegion(direction);
-			if(!region.isProtected()){
-				player.sendBlockChange(new Location(Bukkit.getWorld("main_flat"), region.getMin().getX(), 62, region.getMin().getZ()), Material.GOLD_BLOCK, (byte) 0);
-				player.sendBlockChange(new Location(Bukkit.getWorld("main_flat"), region.getMax().getX(), 62, region.getMax().getZ()), Material.GOLD_BLOCK, (byte) 0);
-
-				new BukkitRunnable(){
-
-					@Override
-					public void run(){
-						player.sendBlockChange(new Location(Bukkit.getWorld("main_flat"), region.getMin().getX(), 62, region.getMin().getZ()), Material.GRASS, (byte) 0);
-						player.sendBlockChange(new Location(Bukkit.getWorld("main_flat"), region.getMax().getX(), 62, region.getMax().getZ()), Material.GRASS, (byte) 0);
-					}
-
-				}.runTaskLater(this, 300);
-				continue;
-			}
-
-			ProtectedRegion pr = region.getProtectedRegion();
-			BlockVector min = pr.getMinimumPoint();
-			BlockVector max = pr.getMaximumPoint();
-
-			player.sendBlockChange(new Location(Bukkit.getWorld("main_flat"), min.getBlockX(), 62, min.getBlockZ()), Material.IRON_BLOCK, (byte) 0);
-			player.sendBlockChange(new Location(Bukkit.getWorld("main_flat"), max.getBlockX(), 62, max.getBlockZ()), Material.IRON_BLOCK, (byte) 0);
-
-			new BukkitRunnable(){
-
-				@Override
-				public void run(){
-					player.sendBlockChange(new Location(Bukkit.getWorld("main_flat"), min.getBlockX(), 62, min.getBlockZ()), Material.GRASS, (byte) 0);
-					player.sendBlockChange(new Location(Bukkit.getWorld("main_flat"), max.getBlockX(), 62, max.getBlockZ()), Material.GRASS, (byte) 0);
-				}
-
-			}.runTaskLater(this, 300);
-		}
-
-		player.sendMessage(ChatColor.AQUA + "DISPLAY PROTECTED REGIONS");
-		}else if(args[0].equalsIgnoreCase("remove")){
-			worldGuard.getRegionManager(Bukkit.getWorld("main_flat")).getRegions().values().forEach(region -> {
-				if(region.getId().startsWith("user_"))
-					Util.removeProtectedRegion(region);
-			});
-		}
-
-		return true;
-	}*/
 
 	public static HogochiByebye getPlugin(){
 		return plugin;
@@ -240,7 +166,7 @@ public class HogochiByebye extends JavaPlugin implements Listener {
 		Location loc = e.getClickedBlock().getLocation();
 		Compartment cpm = new Compartment(loc.getBlockX(), loc.getBlockZ());
 		Region rg = cpm.getRegion(loc.getBlockX(), loc.getBlockZ());
-		if(!rg.isProtected())
+		if(rg == null || !rg.isProtected())
 			return;
 
 		ProtectedRegion pr = rg.getProtectedRegion();
@@ -253,7 +179,7 @@ public class HogochiByebye extends JavaPlugin implements Listener {
 
 		loc.setX(min.getX());
 		loc.setZ(min.getZ());
-		loc.setY(world.getHighestBlockYAt(loc.getBlockX(), loc.getBlockZ()));
+		loc.setY(world.getHighestBlockYAt(loc.getBlockX(), loc.getBlockZ()) - 1);
 
 		Util.displayPoint(player, loc);
 
@@ -261,56 +187,56 @@ public class HogochiByebye extends JavaPlugin implements Listener {
 
 		loc.setX(max.getX());
 		loc.setZ(max.getZ());
-		loc.setY(world.getHighestBlockYAt(loc.getBlockX(), loc.getBlockZ()));
+		loc.setY(world.getHighestBlockYAt(loc.getBlockX(), loc.getBlockZ()) - 1);
 
 		Util.displayPoint(player, loc);
 
 		if(RegionByebye.is25x25(pr)){
 			loc.setX(Util.applyMinus(min.getAbsoluteX() + Util.REGION_ONE_SIDE - 1, Util.isUnderZero(min.getX())));
 			loc.setZ(min.getZ());
-			loc.setY(world.getHighestBlockYAt(loc.getBlockX(), loc.getBlockZ()));
+			loc.setY(world.getHighestBlockYAt(loc.getBlockX(), loc.getBlockZ()) - 1);
 
 			Util.displayPoint(player, loc);
 
 			loc.setX(min.getX());
 			loc.setZ(Util.applyMinus(min.getAbsoluteZ() + Util.REGION_ONE_SIDE - 1, Util.isUnderZero(min.getZ())));
-			loc.setY(world.getHighestBlockYAt(loc.getBlockX(), loc.getBlockZ()));
+			loc.setY(world.getHighestBlockYAt(loc.getBlockX(), loc.getBlockZ()) - 1);
 
 			Util.displayPoint(player, loc);
 		}else if(RegionByebye.is25x50(pr)){
 			loc.setX(Util.applyMinus(min.getAbsoluteX() + Util.COMPARTMENT_ONE_SIDE - 1, Util.isUnderZero(min.getX())));
 			loc.setZ(min.getZ());
-			loc.setY(world.getHighestBlockYAt(loc.getBlockX(), loc.getBlockZ()));
+			loc.setY(world.getHighestBlockYAt(loc.getBlockX(), loc.getBlockZ()) - 1);
 
 			Util.displayPoint(player, loc);
 
 			loc.setX(min.getX());
 			loc.setZ(Util.applyMinus(min.getAbsoluteZ() + Util.REGION_ONE_SIDE - 1, Util.isUnderZero(min.getZ())));
-			loc.setY(world.getHighestBlockYAt(loc.getBlockX(), loc.getBlockZ()));
+			loc.setY(world.getHighestBlockYAt(loc.getBlockX(), loc.getBlockZ()) - 1);
 
 			Util.displayPoint(player, loc);
 		}else if(RegionByebye.is50x25(pr)){
 			loc.setX(Util.applyMinus(min.getAbsoluteX() + Util.REGION_ONE_SIDE - 1, Util.isUnderZero(min.getX())));
 			loc.setZ(min.getZ());
-			loc.setY(world.getHighestBlockYAt(loc.getBlockX(), loc.getBlockZ()));
+			loc.setY(world.getHighestBlockYAt(loc.getBlockX(), loc.getBlockZ()) - 1);
 
 			Util.displayPoint(player, loc);
 
 			loc.setX(min.getX());
 			loc.setZ(Util.applyMinus(min.getAbsoluteZ() + Util.COMPARTMENT_ONE_SIDE - 1, Util.isUnderZero(min.getZ())));
-			loc.setY(world.getHighestBlockYAt(loc.getBlockX(), loc.getBlockZ()));
+			loc.setY(world.getHighestBlockYAt(loc.getBlockX(), loc.getBlockZ()) - 1);
 
 			Util.displayPoint(player, loc);
 		}else{
 			loc.setX(Util.applyMinus(min.getAbsoluteX() + Util.COMPARTMENT_ONE_SIDE - 1, Util.isUnderZero(min.getX())));
 			loc.setZ(min.getZ());
-			loc.setY(world.getHighestBlockYAt(loc.getBlockX(), loc.getBlockZ()));
+			loc.setY(world.getHighestBlockYAt(loc.getBlockX(), loc.getBlockZ()) - 1);
 
 			Util.displayPoint(player, loc);
 
 			loc.setX(min.getX());
 			loc.setZ(Util.applyMinus(min.getAbsoluteZ() + Util.COMPARTMENT_ONE_SIDE - 1, Util.isUnderZero(min.getZ())));
-			loc.setY(world.getHighestBlockYAt(loc.getBlockX(), loc.getBlockZ()));
+			loc.setY(world.getHighestBlockYAt(loc.getBlockX(), loc.getBlockZ()) - 1);
 
 			Util.displayPoint(player, loc);
 		}
@@ -324,7 +250,12 @@ public class HogochiByebye extends JavaPlugin implements Listener {
 
 			player.sendMessage(ChatColor.AQUA + "That block has been protected by " + Bukkit.getOfflinePlayer(uuid).getName() + ".");
 			player.sendMessage(ChatColor.AQUA + "  " + (RegionByebye.is25x25(pr) ? "25x25=625" : (RegionByebye.is50x50(pr) ? "50x50=2500" : (RegionByebye.is25x50(pr) ? "25x50=1250" : "50x25=1250"))));
-			player.sendMessage(ChatColor.AQUA + "  Last login: " + (new SimpleDateFormat("dd").format(System.currentTimeMillis() - Database.getHyperingEconomyAPI().getLastPlayed(uuid))) + " days ago.");
+
+			String days = new SimpleDateFormat("dd").format(System.currentTimeMillis() - Database.getHyperingEconomyAPI().getLastPlayed(uuid));
+			if(days.startsWith("0"))
+				days = days.substring(1);
+
+			player.sendMessage(ChatColor.AQUA + "  Last login: " + days + " days ago.");
 
 			if(RegionByebye.isBuyable(pr))
 				player.sendMessage(ChatColor.AQUA + "  Need money: ¥" + RegionByebye.getPrice(pr));

@@ -1,6 +1,8 @@
 package amata1219.receiving.packets.on.spigot;
 
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 import amata1219.hogochi.byebye.HogochiByebye;
 import io.netty.channel.ChannelDuplexHandler;
@@ -17,21 +19,18 @@ public class PacketHandler extends ChannelDuplexHandler {
 
 	@Override
 	public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
-		if(!msg.getClass().getSimpleName().equals("PacketPlayOutChat")){
-			super.write(ctx, msg, promise);
-			return;
+		if(msg.getClass().getSimpleName().equalsIgnoreCase("PacketPlayOutChat")){
+			if(p.getWorld().getName().equals("main_flat")){
+				ItemStack item = p.getInventory().getItemInMainHand();
+				if(item != null && item.getType() == Material.STICK){
+					Object a = Reflection.getFieldValueT(HogochiByebye.getInjector().getPacketPlayOutChat_a(), msg);
+					String text = (String) HogochiByebye.getInjector().toPlainText().invoke(a);
+
+					if(text.equals("No one has claimed this block."))
+						return;
+				}
+			}
 		}
-
-		if(!p.getWorld().getName().equals("main_flat")){
-			super.write(ctx, msg, promise);
-			return;
-		}
-
-		Object a = Reflection.getFieldValueT(HogochiByebye.getInjector().getPacketPlayOutChat_a(), msg);
-		String text = (String) HogochiByebye.getInjector().getPlainText().invoke(a);
-
-		if(text.equals("§bNo one has claimed this block."))
-			return;
 
 		super.write(ctx, msg, promise);
 	}
