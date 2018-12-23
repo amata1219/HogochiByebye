@@ -33,17 +33,15 @@ public class RegionByebye {
 		HogochiByebye plugin = HogochiByebye.getPlugin();
 
 		ConfigurationSection section = plugin.getConfig().getConfigurationSection("Regions");
-		if(section == null)
-			return;
+		if(section != null)
+			section.getKeys(false).forEach(id -> rb.sales.put(id, plugin.getConfig().getLong("Regions." + id)));
 
-		section.getKeys(false).forEach(id -> rb.sales.put(id, plugin.getConfig().getLong("Regions." + id)));
-
-		try {
+		try{
 			rb.ne = ClipboardFormat.SCHEMATIC.load(new File(HogochiByebye.getPlugin().getDataFolder() + File.separator + "flat_ne.schematic"));
 			rb.se = ClipboardFormat.SCHEMATIC.load(new File(HogochiByebye.getPlugin().getDataFolder() + File.separator + "flat_se.schematic"));
 			rb.sw = ClipboardFormat.SCHEMATIC.load(new File(HogochiByebye.getPlugin().getDataFolder() + File.separator + "flat_sw.schematic"));
 			rb.nw = ClipboardFormat.SCHEMATIC.load(new File(HogochiByebye.getPlugin().getDataFolder() + File.separator + "flat_nw.schematic"));
-		} catch (IOException e) {
+		}catch(IOException e){
 			e.printStackTrace();
 		}
 	}

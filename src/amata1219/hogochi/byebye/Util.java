@@ -13,7 +13,7 @@ import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
 public class Util {
 
-	public static final int ROAD_WIDTH = 12;
+	public static final int ROAD_WIDTH = 10;
 	public static final int COMPARTMENT_ONE_SIDE = 50;
 	public static final int REGION_ONE_SIDE = 25;
 
@@ -34,7 +34,7 @@ public class Util {
 	}
 
 	public static int getAddress(int n){
-		return (n - 6) / (ROAD_WIDTH + COMPARTMENT_ONE_SIDE);
+		return (n - 5) / (ROAD_WIDTH + COMPARTMENT_ONE_SIDE);
 	}
 
 	public static int getMin(int address){

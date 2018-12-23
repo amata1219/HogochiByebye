@@ -63,6 +63,7 @@ public class HogochiByebye extends JavaPlugin implements Listener {
 
 		this.griefPrevention = (GriefPrevention) griefPrevention;
 
+
 		RegionByebye.load();
 		ClaimByebye.load();
 
