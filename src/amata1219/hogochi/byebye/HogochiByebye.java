@@ -1,11 +1,14 @@
 /*
+
  * 本プラグインの著作権は、amata1219(Twitter@amata1219)に帰属します。
  * また、本プラグインの二次配布、改変使用、自作発言を禁じます。
  */
 
 package amata1219.hogochi.byebye;
 
-import java.text.SimpleDateFormat;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
@@ -62,7 +65,6 @@ public class HogochiByebye extends JavaPlugin implements Listener {
 			throw new NullPointerException("[HogochiByebye] GriefPrevention is not exist!");
 
 		this.griefPrevention = (GriefPrevention) griefPrevention;
-
 
 		RegionByebye.load();
 		ClaimByebye.load();
@@ -146,6 +148,8 @@ public class HogochiByebye extends JavaPlugin implements Listener {
 		}
 	}
 
+	private final Set<UUID> cache = new HashSet<>();
+
 	@EventHandler
 	public void onInteract(PlayerInteractEvent e){
 		if(e.getAction() != Action.RIGHT_CLICK_BLOCK)
@@ -164,6 +168,22 @@ public class HogochiByebye extends JavaPlugin implements Listener {
 		if(e.getClickedBlock() == null)
 			return;
 
+		UUID uuid = player.getUniqueId();
+		if(cache.contains(uuid)){
+			player.sendMessage(ChatColor.RED + "クールダウン中です。");
+			return;
+		}
+
+		cache.add(uuid);
+		new BukkitRunnable(){
+
+			@Override
+			public void run(){
+				cache.remove(uuid);
+			}
+
+		}.runTaskLater(this, 20L);
+
 		Location loc = e.getClickedBlock().getLocation();
 		Compartment cpm = new Compartment(loc.getBlockX(), loc.getBlockZ());
 		Region rg = cpm.getRegion(loc.getBlockX(), loc.getBlockZ());
@@ -176,67 +196,109 @@ public class HogochiByebye extends JavaPlugin implements Listener {
 
 		World world = Bukkit.getWorld("main_flat");
 
+		int x = 0, z = 0;
+
 		Point min = rg.getMin();
 
-		loc.setX(min.getX());
-		loc.setZ(min.getZ());
-		loc.setY(world.getHighestBlockYAt(loc.getBlockX(), loc.getBlockZ()) - 1);
-
-		Util.displayPoint(player, loc);
-
-		Point max = rg.getMax();
-
-		loc.setX(max.getX());
-		loc.setZ(max.getZ());
+		loc.setX(x = min.getX());
+		loc.setZ(z = min.getZ());
 		loc.setY(world.getHighestBlockYAt(loc.getBlockX(), loc.getBlockZ()) - 1);
 
 		Util.displayPoint(player, loc);
 
 		if(RegionByebye.is25x25(pr)){
-			loc.setX(Util.applyMinus(min.getAbsoluteX() + Util.REGION_ONE_SIDE - 1, Util.isUnderZero(min.getX())));
-			loc.setZ(min.getZ());
+			Point max = rg.getMax();
+
+			loc.setX(max.getX());
+			loc.setZ(max.getZ());
 			loc.setY(world.getHighestBlockYAt(loc.getBlockX(), loc.getBlockZ()) - 1);
 
 			Util.displayPoint(player, loc);
 
-			loc.setX(min.getX());
-			loc.setZ(Util.applyMinus(min.getAbsoluteZ() + Util.REGION_ONE_SIDE - 1, Util.isUnderZero(min.getZ())));
+			loc.setX(Util.applyMinus(Util.abs(x) + Util.REGION_ONE_SIDE - 1, Util.isUnderZero(x)));
+			loc.setZ(z);
+			loc.setY(world.getHighestBlockYAt(loc.getBlockX(), loc.getBlockZ()) - 1);
+
+			Util.displayPoint(player, loc);
+
+			loc.setX(x);
+			loc.setZ(Util.applyMinus(Util.abs(z) + Util.REGION_ONE_SIDE - 1, Util.isUnderZero(z)));
 			loc.setY(world.getHighestBlockYAt(loc.getBlockX(), loc.getBlockZ()) - 1);
 
 			Util.displayPoint(player, loc);
 		}else if(RegionByebye.is25x50(pr)){
-			loc.setX(Util.applyMinus(min.getAbsoluteX() + Util.COMPARTMENT_ONE_SIDE - 1, Util.isUnderZero(min.getX())));
-			loc.setZ(min.getZ());
+			List<Direction> directions = cpm.getDirections(pr);
+
+			Region nrg = cpm.combine(directions.get(0), directions.get(1));
+
+			Point max = nrg.getMax();
+
+			loc.setX(max.getX());
+			loc.setZ(max.getZ());
 			loc.setY(world.getHighestBlockYAt(loc.getBlockX(), loc.getBlockZ()) - 1);
 
 			Util.displayPoint(player, loc);
 
-			loc.setX(min.getX());
-			loc.setZ(Util.applyMinus(min.getAbsoluteZ() + Util.REGION_ONE_SIDE - 1, Util.isUnderZero(min.getZ())));
+			Point p = nrg.getMin();
+
+			x = p.getX();
+			z = p.getZ();
+
+			loc.setX(Util.applyMinus(Util.abs(x) + Util.REGION_ONE_SIDE - 1, Util.isUnderZero(x)));
+			loc.setZ(z);
+			loc.setY(world.getHighestBlockYAt(loc.getBlockX(), loc.getBlockZ()) - 1);
+
+			Util.displayPoint(player, loc);
+
+			loc.setX(x);
+			loc.setZ(Util.applyMinus(Util.abs(z) + Util.COMPARTMENT_ONE_SIDE - 1, Util.isUnderZero(z)));
 			loc.setY(world.getHighestBlockYAt(loc.getBlockX(), loc.getBlockZ()) - 1);
 
 			Util.displayPoint(player, loc);
 		}else if(RegionByebye.is50x25(pr)){
-			loc.setX(Util.applyMinus(min.getAbsoluteX() + Util.REGION_ONE_SIDE - 1, Util.isUnderZero(min.getX())));
-			loc.setZ(min.getZ());
+			List<Direction> directions = cpm.getDirections(pr);
+
+			Region nrg = cpm.combine(directions.get(0), directions.get(1));
+
+			Point max = nrg.getMax();
+
+			loc.setX(max.getX());
+			loc.setZ(max.getZ());
 			loc.setY(world.getHighestBlockYAt(loc.getBlockX(), loc.getBlockZ()) - 1);
 
 			Util.displayPoint(player, loc);
 
-			loc.setX(min.getX());
-			loc.setZ(Util.applyMinus(min.getAbsoluteZ() + Util.COMPARTMENT_ONE_SIDE - 1, Util.isUnderZero(min.getZ())));
+			Point p = nrg.getMin();
+
+			x = p.getX();
+			z = p.getZ();
+
+			loc.setX(Util.applyMinus(Util.abs(x) + Util.COMPARTMENT_ONE_SIDE - 1, Util.isUnderZero(x)));
+			loc.setZ(z);
+			loc.setY(world.getHighestBlockYAt(loc.getBlockX(), loc.getBlockZ()) - 1);
+
+			Util.displayPoint(player, loc);
+
+			loc.setX(x);
+			loc.setZ(Util.applyMinus(Util.abs(z) + Util.REGION_ONE_SIDE - 1, Util.isUnderZero(z)));
 			loc.setY(world.getHighestBlockYAt(loc.getBlockX(), loc.getBlockZ()) - 1);
 
 			Util.displayPoint(player, loc);
 		}else{
-			loc.setX(Util.applyMinus(min.getAbsoluteX() + Util.COMPARTMENT_ONE_SIDE - 1, Util.isUnderZero(min.getX())));
-			loc.setZ(min.getZ());
+			loc.setX(Util.applyMinus(Util.abs(x) + Util.COMPARTMENT_ONE_SIDE - 1, Util.isUnderZero(x)));
+			loc.setZ(Util.applyMinus(Util.abs(z) + Util.COMPARTMENT_ONE_SIDE - 1, Util.isUnderZero(z)));
 			loc.setY(world.getHighestBlockYAt(loc.getBlockX(), loc.getBlockZ()) - 1);
 
 			Util.displayPoint(player, loc);
 
-			loc.setX(min.getX());
-			loc.setZ(Util.applyMinus(min.getAbsoluteZ() + Util.COMPARTMENT_ONE_SIDE - 1, Util.isUnderZero(min.getZ())));
+			loc.setX(Util.applyMinus(Util.abs(x) + Util.COMPARTMENT_ONE_SIDE - 1, Util.isUnderZero(x)));
+			loc.setZ(z);
+			loc.setY(world.getHighestBlockYAt(loc.getBlockX(), loc.getBlockZ()) - 1);
+
+			Util.displayPoint(player, loc);
+
+			loc.setX(x);
+			loc.setZ(Util.applyMinus(Util.abs(z) + Util.COMPARTMENT_ONE_SIDE - 1, Util.isUnderZero(z)));
 			loc.setY(world.getHighestBlockYAt(loc.getBlockX(), loc.getBlockZ()) - 1);
 
 			Util.displayPoint(player, loc);
@@ -247,16 +309,11 @@ public class HogochiByebye extends JavaPlugin implements Listener {
 			player.sendMessage(ChatColor.AQUA + "  25x25=625");//1250, 2500
 			player.sendMessage(ChatColor.AQUA + "  Need tickets: " + RegionByebye.STONE);
 		}else{
-			UUID uuid = pr.getOwners().getUniqueIds().iterator().next();
+			UUID owner = pr.getOwners().getUniqueIds().iterator().next();
 
-			player.sendMessage(ChatColor.AQUA + "That block has been protected by " + Bukkit.getOfflinePlayer(uuid).getName() + ".");
+			player.sendMessage(ChatColor.AQUA + "That block has been protected by " + Bukkit.getOfflinePlayer(owner).getName() + ".");
 			player.sendMessage(ChatColor.AQUA + "  " + (RegionByebye.is25x25(pr) ? "25x25=625" : (RegionByebye.is50x50(pr) ? "50x50=2500" : (RegionByebye.is25x50(pr) ? "25x50=1250" : "50x25=1250"))));
-
-			String days = new SimpleDateFormat("dd").format(System.currentTimeMillis() - Database.getHyperingEconomyAPI().getLastPlayed(uuid));
-			if(days.startsWith("0"))
-				days = days.substring(1);
-
-			player.sendMessage(ChatColor.AQUA + "  Last login: " + days + " days ago.");
+			player.sendMessage(ChatColor.AQUA + "  Last login: " + ((System.currentTimeMillis() - Database.getHyperingEconomyAPI().getLastPlayed(owner)) / 86400000) + " days ago.");
 
 			if(RegionByebye.isBuyable(pr))
 				player.sendMessage(ChatColor.AQUA + "  Need money: ¥" + RegionByebye.getPrice(pr));

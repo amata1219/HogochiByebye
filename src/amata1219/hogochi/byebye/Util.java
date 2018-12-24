@@ -170,7 +170,7 @@ public class Util {
 
 				player.sendBlockChange(loc, block.getType(), block.getData());
 			}
-		}.runTaskLater(HogochiByebye.getPlugin(), 1200L);
+		}.runTaskLater(HogochiByebye.getPlugin(), 300L);
 	}
 
 }
