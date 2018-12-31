@@ -33,7 +33,7 @@ import org.bukkit.scheduler.BukkitTask;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
-import amata1219.hypering.economy.Database;
+import amata1219.hypering.economy.SQL;
 import amata1219.receiving.packets.on.spigot.PacketInjector;
 import me.ryanhamshire.GriefPrevention.Claim;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
@@ -313,7 +313,7 @@ public class HogochiByebye extends JavaPlugin implements Listener {
 
 			player.sendMessage(ChatColor.AQUA + "That block has been protected by " + Bukkit.getOfflinePlayer(owner).getName() + ".");
 			player.sendMessage(ChatColor.AQUA + "  " + (RegionByebye.is25x25(pr) ? "25x25=625" : (RegionByebye.is50x50(pr) ? "50x50=2500" : (RegionByebye.is25x50(pr) ? "25x50=1250" : "50x25=1250"))));
-			player.sendMessage(ChatColor.AQUA + "  Last login: " + ((System.currentTimeMillis() - Database.getHyperingEconomyAPI().getLastPlayed(owner)) / 86400000) + " days ago.");
+			player.sendMessage(ChatColor.AQUA + "  Last login: " + ((System.currentTimeMillis() - SQL.getSQL().getHyperingEconomyAPI().getLastPlayed(owner)) / 86400000) + " days ago.");
 
 			if(RegionByebye.isBuyable(pr))
 				player.sendMessage(ChatColor.AQUA + "  Need money: ¥" + RegionByebye.getPrice(pr));
