@@ -1,8 +1,10 @@
 package amata1219.hogochi.byebye;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 
+import com.sk89q.worldedit.bukkit.BukkitWorld;
+import com.sk89q.worldedit.math.BlockVector3;
+import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
 public class Region {
@@ -50,9 +52,7 @@ public class Region {
 	}
 
 	public boolean isProtected(){
-		Location location = min.getLocation(true);
-
-		for(ProtectedRegion region : HogochiByebye.getPlugin().getWorldGuardPlugin().getRegionManager(Bukkit.getWorld("main_flat")).getApplicableRegions(location)){
+		for(ProtectedRegion region : WorldGuard.getInstance().getPlatform().getRegionContainer().get(new BukkitWorld(Bukkit.getWorld("main_flat"))).getApplicableRegions(BlockVector3.at(min.getX(), 255, min.getZ()))){
 			if(region.getId().startsWith("mainflatroad_"))
 				continue;
 

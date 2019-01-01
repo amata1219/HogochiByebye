@@ -7,6 +7,8 @@ import org.bukkit.entity.Player;
 
 import io.netty.channel.Channel;
 
+//import net.minecraft.server.v1_13_R2.IChatBaseComponent;
+
 public class PacketInjector {
 
 	private Field EntityPlayer_playerConnection;
@@ -29,13 +31,12 @@ public class PacketInjector {
 			PlayerConnection_networkManager = Reflection.getField(PlayerConnection, "networkManager");
 			NetworkManager = Reflection.getClass("{nms}.NetworkManager");
 			k = Reflection.getField(NetworkManager, "channel");
-			m = Reflection.getField(NetworkManager, "m");
+			m = Reflection.getField(NetworkManager, "packetListener");
 
 			PacketPlayOutChat = Reflection.getClass("{nms}.PacketPlayOutChat");
 			IChatBaseComponent = Reflection.getClass("{nms}.IChatBaseComponent");
 			a = Reflection.getField(PacketPlayOutChat, "a");
-			a.setAccessible(true);
-			toPlainText = IChatBaseComponent.getMethod("toPlainText");
+			toPlainText = IChatBaseComponent.getMethod("getString");
 		}catch(Throwable t) {
 			t.printStackTrace();
 		}

@@ -7,7 +7,9 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import com.sk89q.worldedit.BlockVector;
+import com.sk89q.worldedit.bukkit.BukkitWorld;
+import com.sk89q.worldedit.math.BlockVector3;
+import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.protection.regions.ProtectedCuboidRegion;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
@@ -61,18 +63,6 @@ public class Util {
 
 	public static Location toLocation(int x, int z, boolean isMax){
 		return new Location(Bukkit.getWorld("main_flat"), x, isMax ? 255 : 0, z);
-	}
-
-	public static BlockVector toBlockVector(int x, int y, int z){
-		return BlockVector.toBlockPoint(x, y, z);
-	}
-
-	public static BlockVector toBlockVector(Point p, boolean isMax){
-		return BlockVector.toBlockPoint(p.getX(), isMax ? 255 : 0, p.getZ());
-	}
-
-	public static Point toPoint(BlockVector vector){
-		return new Point(vector.getBlockX(), vector.getBlockZ());
 	}
 
 	public static Direction toMainDirection(int x, int z){
@@ -142,9 +132,9 @@ public class Util {
 	}
 
 	public static ProtectedRegion createProtectedRegion(IdType id, Point p1, Point p2){
-		ProtectedCuboidRegion region = new ProtectedCuboidRegion(id.getString() + System.nanoTime(), toBlockVector(p1, false), toBlockVector(p2, true));
+		ProtectedCuboidRegion region = new ProtectedCuboidRegion(id.getString() + System.nanoTime(), BlockVector3.at(p1.getX(), 0, p1.getZ()), BlockVector3.at(p2.getX(), 255, p2.getZ()));
 
-		HogochiByebye.getPlugin().getWorldGuardPlugin().getRegionManager(Bukkit.getWorld("main_flat")).addRegion(region);
+		WorldGuard.getInstance().getPlatform().getRegionContainer().get(getMainFlat()).addRegion(region);
 		return region;
 	}
 
@@ -154,7 +144,7 @@ public class Util {
 	}
 
 	public static void removeProtectedRegion(String id){
-		HogochiByebye.getPlugin().getWorldGuardPlugin().getRegionManager(Bukkit.getWorld("main_flat")).removeRegion(id);
+		WorldGuard.getInstance().getPlatform().getRegionContainer().get(getMainFlat()).removeRegion(id);
 	}
 
 	@SuppressWarnings("deprecation")
@@ -171,6 +161,10 @@ public class Util {
 				player.sendBlockChange(loc, block.getType(), block.getData());
 			}
 		}.runTaskLater(HogochiByebye.getPlugin(), 300L);
+	}
+
+	public static BukkitWorld getMainFlat(){
+		return new BukkitWorld(Bukkit.getWorld("main_flat"));
 	}
 
 }

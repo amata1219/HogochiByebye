@@ -1,12 +1,6 @@
 name: HogochiByebye
 main: amata1219.hogochi.byebye.HogochiByebye
 version: 1.0.0
-depend: [HyperingEconomy, WorldEdit,WorldGuard,FastAsyncWorldEdit,GriefPrevention]
+api-version: 1.13
+depend: [HyperingEconomy,WorldEdit,WorldGuard,GriefPrevention]
 author: amata1219(Twitter@amata1219)
-
-commands:
-  rgview:
-    description: debug command.
-    usage: /<command>
-    permission: hogochi.byebye.rgview
-    permission-message: You do not have permission(<permission>).

@@ -307,7 +307,7 @@ public class HogochiByebye extends JavaPlugin implements Listener {
 		if(pr.getId().startsWith(IdType.ADMIN.getString())){
 			player.sendMessage(ChatColor.AQUA + "That block has been protected by an administrator.");
 			player.sendMessage(ChatColor.AQUA + "  25x25=625");//1250, 2500
-			player.sendMessage(ChatColor.AQUA + "  Need tickets: " + RegionByebye.STONE);
+			player.sendMessage(ChatColor.AQUA + "  Need tickets: " + RegionByebye.DEFAULT_VALUE);
 		}else{
 			UUID owner = pr.getOwners().getUniqueIds().iterator().next();
 

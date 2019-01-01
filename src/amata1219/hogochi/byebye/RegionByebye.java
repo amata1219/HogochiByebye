@@ -1,27 +1,41 @@
 package amata1219.hogochi.byebye;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
-import com.boydti.fawe.object.schematic.Schematic;
-import com.sk89q.worldedit.Vector;
+
+import com.sk89q.worldedit.EditSession;
+import com.sk89q.worldedit.WorldEdit;
+import com.sk89q.worldedit.WorldEditException;
 import com.sk89q.worldedit.bukkit.BukkitWorld;
+import com.sk89q.worldedit.extent.clipboard.Clipboard;
 import com.sk89q.worldedit.extent.clipboard.io.ClipboardFormat;
-import com.sk89q.worldedit.math.transform.Transform;
+import com.sk89q.worldedit.extent.clipboard.io.ClipboardFormats;
+import com.sk89q.worldedit.extent.clipboard.io.ClipboardReader;
+import com.sk89q.worldedit.function.operation.Operation;
+import com.sk89q.worldedit.function.operation.Operations;
+import com.sk89q.worldedit.math.BlockVector3;
+import com.sk89q.worldedit.session.ClipboardHolder;
+import com.sk89q.worldguard.LocalPlayer;
+import com.sk89q.worldguard.WorldGuard;
+import com.sk89q.worldguard.protection.flags.Flags;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
+import com.sk89q.worldguard.protection.regions.RegionContainer;
+import com.sk89q.worldguard.protection.regions.RegionQuery;
 
 public class RegionByebye {
 
 	private static RegionByebye rb;
 
-	public static final int STONE = 250;
+	public static final int DEFAULT_VALUE = 250;
 
 	private HashMap<String, Long> sales = new HashMap<>();
-	private Schematic ne, se, sw, nw;
+	private Clipboard ne, se, sw, nw;
 
 	private RegionByebye(){
 
@@ -36,7 +50,13 @@ public class RegionByebye {
 		if(section != null)
 			section.getKeys(false).forEach(id -> rb.sales.put(id, plugin.getConfig().getLong("Regions." + id)));
 
-		try{
+		rb.ne = read(new File(HogochiByebye.getPlugin().getDataFolder() + File.separator + "flat_ne.schematic"));
+		rb.se = read(new File(HogochiByebye.getPlugin().getDataFolder() + File.separator + "flat_se.schematic"));
+		rb.sw = read(new File(HogochiByebye.getPlugin().getDataFolder() + File.separator + "flat_sw.schematic"));
+		rb.nw = read(new File(HogochiByebye.getPlugin().getDataFolder() + File.separator + "flat_nw.schematic"));
+
+		/*
+		 * try{
 			rb.ne = ClipboardFormat.SCHEMATIC.load(new File(HogochiByebye.getPlugin().getDataFolder() + File.separator + "flat_ne.schematic"));
 			rb.se = ClipboardFormat.SCHEMATIC.load(new File(HogochiByebye.getPlugin().getDataFolder() + File.separator + "flat_se.schematic"));
 			rb.sw = ClipboardFormat.SCHEMATIC.load(new File(HogochiByebye.getPlugin().getDataFolder() + File.separator + "flat_sw.schematic"));
@@ -44,6 +64,19 @@ public class RegionByebye {
 		}catch(IOException e){
 			e.printStackTrace();
 		}
+		 */
+	}
+
+	private static Clipboard read(File file){
+		ClipboardFormat format = ClipboardFormats.findByFile(file);
+		try(ClipboardReader reader = format.getReader(new FileInputStream(file))){
+			return reader.read();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	public static void save(){
@@ -159,25 +192,45 @@ public class RegionByebye {
 
 		Point min = cpm.getRegion(cpm.getDirections(pr).get(0)).getMin();
 
+		int x = min.getX(), z = min.getZ();
+
 		switch(cpm.getDirectionNumberTable().getMainDirection()){
 		case NORTH_EAST:
-			rb.ne.paste(new BukkitWorld(Bukkit.getWorld("main_flat")), new Vector(min.getX(), 255, min.getZ()), false, true, (Transform) null);
+			paste(rb.ne, x, z);
+			//rb.ne.paste(Util.getMainFlat()), new Vector(min.getX(), 255, min.getZ()), false, true, (Transform) null);
 			break;
 		case NORTH_WEST:
-			rb.nw.paste(new BukkitWorld(Bukkit.getWorld("main_flat")), new Vector(min.getX(), 255, min.getZ()), false, true, (Transform) null);
+			paste(rb.nw, x, z);
+			//rb.nw.paste(Util.getMainFlat()), new Vector(min.getX(), 255, min.getZ()), false, true, (Transform) null);
 			break;
 		case SOUTH_EAST:
-			rb.se.paste(new BukkitWorld(Bukkit.getWorld("main_flat")), new Vector(min.getX(), 255, min.getZ()), false, true, (Transform) null);
+			paste(rb.se, x, z);
+			//rb.se.paste(Util.getMainFlat()), new Vector(min.getX(), 255, min.getZ()), false, true, (Transform) null);
 			break;
 		case SOUTH_WEST:
-			rb.sw.paste(new BukkitWorld(Bukkit.getWorld("main_flat")), new Vector(min.getX(), 255, min.getZ()), false, true, (Transform) null);
+			paste(rb.sw, x, z);
+			//rb.sw.paste(Util.getMainFlat()), new Vector(min.getX(), 255, min.getZ()), false, true, (Transform) null);
 			break;
 		default:
 			break;
 		}
 
-		//rb.flat.paste(new BukkitWorld(Bukkit.getWorld("main_flat")), new Vector(min.getX(), 255, min.getZ()), false, true, (Transform) null);
+		//rb.flat.paste(Util.getMainFlat()), new Vector(min.getX(), 255, min.getZ()), false, true, (Transform) null);
 		//1: bedrock, 2~61: dirt, 62: grass, 63~255: air
+	}
+
+	private static void paste(Clipboard clipboard, int x, int z){
+		try(EditSession session = WorldEdit.getInstance().getEditSessionFactory().getEditSession(Util.getMainFlat(), -1)){
+			Operation operation = new ClipboardHolder(clipboard)
+					.createPaste(session)
+					.to(BlockVector3.at(x, 255, z))
+					.ignoreAirBlocks(false)
+					.build();
+
+			Operations.complete(operation);
+		} catch (WorldEditException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public static boolean isExistProtectedRegion(int x, int z){
@@ -191,9 +244,7 @@ public class RegionByebye {
 	}
 
 	public static ProtectedRegion getProtectedRegion(int x, int z){
-		Location location = Util.toLocation(x, z, true);
-
-		for(ProtectedRegion region : HogochiByebye.getPlugin().getWorldGuardPlugin().getRegionManager(Bukkit.getWorld("main_flat")).getApplicableRegions(location)){
+		for(ProtectedRegion region : WorldGuard.getInstance().getPlatform().getRegionContainer().get(Util.getMainFlat()).getApplicableRegions(BlockVector3.at(x, 255, z))){
 			if(region.getId().startsWith("mainflatroad_"))
 				continue;
 
@@ -208,7 +259,11 @@ public class RegionByebye {
 	}
 
 	public static boolean canBuild(Player player, Location location){
-		return !HogochiByebye.getPlugin().getWorldGuardPlugin().canBuild(player, location);
+		LocalPlayer local = HogochiByebye.getPlugin().getWorldGuardPlugin().wrapPlayer(player);
+		RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
+		RegionQuery query  = container.createQuery();
+		return query.testState(new com.sk89q.worldedit.util.Location(new BukkitWorld(location.getWorld()), location.getBlockX(), location.getBlockY(), location.getBlockZ()), local, Flags.BUILD);
+		//return !HogochiByebye.getPlugin().getWorldGuardPlugin().canBuild(player, location);
 	}
 
 	public static boolean canBuild(Player player, int x, int z){
@@ -266,7 +321,7 @@ public class RegionByebye {
 		if(isAdminRegion(region))
 			return 0;
 
-		int i = STONE;
+		int i = DEFAULT_VALUE;
 
 		if(is25x50(region) || is50x25(region))
 			return i * 2;
