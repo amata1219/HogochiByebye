@@ -6,8 +6,10 @@
 
 package amata1219.hogochi.byebye;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -16,6 +18,9 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
@@ -41,6 +46,8 @@ import me.ryanhamshire.GriefPrevention.GriefPrevention;
 public class HogochiByebye extends JavaPlugin implements Listener {
 
 	private static HogochiByebye plugin;
+
+	private Map<String, CommandExecutor> commands = new HashMap<>();
 
 	private static PacketInjector injector;
 
@@ -85,6 +92,8 @@ public class HogochiByebye extends JavaPlugin implements Listener {
 			injector.addPlayer(player);
 
 		getServer().getPluginManager().registerEvents(this, this);
+
+		commands.put("member", new MemberCommand());
 	}
 
 	@Override
@@ -99,6 +108,12 @@ public class HogochiByebye extends JavaPlugin implements Listener {
 
 		RegionByebye.save();
 		ClaimByebye.save();
+	}
+
+	@Override
+	public boolean onCommand(CommandSender sender, Command command, String label, String[] args){
+		commands.get(command.getName()).onCommand(sender, command, label, args);
+		return true;
 	}
 
 	public static HogochiByebye getPlugin(){
@@ -311,6 +326,7 @@ public class HogochiByebye extends JavaPlugin implements Listener {
 		}else{
 			UUID owner = pr.getOwners().getUniqueIds().iterator().next();
 
+			player.sendMessage(ChatColor.AQUA + "Id: " + pr.getId());
 			player.sendMessage(ChatColor.AQUA + "That block has been protected by " + Bukkit.getOfflinePlayer(owner).getName() + ".");
 			player.sendMessage(ChatColor.AQUA + "  " + (RegionByebye.is25x25(pr) ? "25x25=625" : (RegionByebye.is50x50(pr) ? "50x50=2500" : (RegionByebye.is25x50(pr) ? "25x50=1250" : "50x25=1250"))));
 			player.sendMessage(ChatColor.AQUA + "  Last login: " + ((System.currentTimeMillis() - SQL.getSQL().getHyperingEconomyAPI().getLastPlayed(owner)) / 86400000) + " days ago.");

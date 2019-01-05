@@ -4,3 +4,10 @@ version: 1.0.0
 api-version: 1.13
 depend: [HyperingEconomy,WorldEdit,WorldGuard,GriefPrevention]
 author: amata1219(Twitter@amata1219)
+
+commands:
+  member:
+    description: main command.
+    usage: /<command>
+    permission: hogochi.byebye.member
+    permission-message: You do not have permission.
